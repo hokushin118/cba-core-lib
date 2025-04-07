@@ -1,0 +1,15 @@
+# Code quality
+pylint==2.14.0
+flake8==4.0.1
+black==22.3.0
+
+# Testing dependencies
+pytest==7.4.2
+pytest-asyncio==0.21.1
+httpx==0.25.0
+asgi-lifespan==2.1.0
+pytest-integration-mark==0.2.0
+pytest-sugar==0.9.7
+
+# Code Coverage
+pytest-cov==6.1.1
