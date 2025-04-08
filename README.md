@@ -128,7 +128,7 @@ development environment.
 * Clone the `cba-core-lib` repository to your local machine:
 
     ```bash
-    git clone [https://github.com/hokushin118/cba_core_lib.git](https://github.com/hokushin118/cba_core_lib.git)
+    git clone [https://github.com/hokushin118/cba_core_lib_1.git](https://github.com/hokushin118/cba_core_lib_1.git)
     ```
 
 **2. Navigate to the Project Directory:**
@@ -136,7 +136,7 @@ development environment.
 * Change your current directory to the cloned repository:
 
     ```bash
-    cd cba_core_lib
+    cd cba_core_lib_1
     ```
 
 **3. Create and Activate a Virtual Environment:**
@@ -344,7 +344,7 @@ the `dist/` directory, you can install it using `pip`.
 * **Install from a wheel file:**
 
     ```bash
-    pip install dist/cba_core_lib-<version>-py3-none-any.whl
+    pip install dist/cba_core_lib_1-<version>-py3-none-any.whl
     ```
 
 * **Install from a source distribution:**

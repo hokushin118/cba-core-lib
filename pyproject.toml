@@ -80,7 +80,7 @@ dev = [
 # Configuration for setuptools
 [tool.setuptools]
 # include-package-data=true is needed if you have non-Python files (templates, data)
-# inside your 'src/cba_core_lib' directory that should be included in the package
+# inside your 'src/cba_core_lib_1' directory that should be included in the package
 # Ensure these files are tracked by Git or listed in MANIFEST.in if not using Git tracking
 # include-package-data = true # Set to true if you have non-code filesinside your package dir
 
@@ -89,19 +89,19 @@ dev = [
 [tool.setuptools.packages.find]
 where = ['src']  # Look for packages in the 'src' directory
 
-# Configuration for coverage.py (used by pytest-cov)
-[tool.coverage.run]
-source = ['src/cba_core_lib']
-branch = true
-
 # Configuration for pytest (testing framework)
 [tool.pytest.ini_options]
 testpaths = ['tests']
 python_files = ['test_*.py', '*_test.py']
-addopts = '-v --cov=cba_core_lib --cov-report=term-missing --cov-branch'
-#addopts = '-v --cov=cba_core_lib --cov-report=term-missing --cov-fail-under=80'
-#addopts = '-v --cov=cba_core_lib --cov-report=term-missing --cov-report=html'
+addopts = '-v --cov-report=term-missing --cov-branch'
+#addopts = '-v --cov=cba_core_lib_1 --cov-report=term-missing --cov-fail-under=80'
+#addopts = '-v --cov=cba_core_lib_1 --cov-report=term-missing --cov-report=html'
 asyncio_mode = 'auto' # For pytest-asyncio
+
+# Configuration for coverage.py (used by pytest-cov)
+[tool.coverage.run]
+source = ['src/cba_core_lib']
+branch = true
 
 [tool.coverage.report]
 omit = ['tests/*', '*/__init__.py']
