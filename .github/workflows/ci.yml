@@ -66,12 +66,12 @@ jobs:
       # 5. Lint with flake8
       - name: Lint with flake8
         run: |
-          flake8 service --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 service --count --max-complexity=10 --max-line-length=127 --statistics
+          flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 src --count --max-complexity=10 --max-line-length=127 --statistics
 
       # 7. Run Unit Tests with Coverage
       - name: Run unit tests with pytest
-        run: pytest -v --cov=service --cov-report=term-missing --cov-branch tests/unit
+        run: pytest -v --cov-report=term-missing --cov-branch tests/unit
 
       # 8. Run Integration Tests with Coverage
       - name: Run integration tests with pytest
