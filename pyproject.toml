@@ -93,9 +93,8 @@ where = ['src']  # Look for packages in the 'src' directory
 [tool.pytest.ini_options]
 testpaths = ['tests']
 python_files = ['test_*.py', '*_test.py']
-addopts = '-v --cov-report=term-missing --cov-branch'
-#addopts = '-v --cov=cba_core_lib_1 --cov-report=term-missing --cov-fail-under=80'
-#addopts = '-v --cov=cba_core_lib_1 --cov-report=term-missing --cov-report=html'
+addopts = '-v --cov=cba_core_lib --cov-report=term-missing --cov-fail-under=80'
+#addopts = '-v --cov=cba_core_lib --cov-report=term-missing --cov-report=html'
 asyncio_mode = 'auto' # For pytest-asyncio
 
 # Configuration for coverage.py (used by pytest-cov)
