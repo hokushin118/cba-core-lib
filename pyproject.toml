@@ -12,7 +12,7 @@ build-backend = 'setuptools.build_meta' # Specifies setuptools as the build back
 # This section defines information about your library
 [project]
 name = 'cba-core-lib' # The name used on PyPI and for pip install
-version = '1.0.1'     # Library's version
+version = '1.0.3'     # Library's version
 authors = [
     { name = 'CBA', email = 'cbotee@proton.me' }
 ]
@@ -91,14 +91,13 @@ where = ['src']  # Look for packages in the 'src' directory
 
 # Configuration for coverage.py (used by pytest-cov)
 [tool.coverage.run]
-source = ['src/cba-core-lib']
+source = ['src/cba_core_lib']
 branch = true
 
 # Configuration for pytest (testing framework)
-[tool.pytest]
+[tool.pytest.ini_options]
 testpaths = ['tests']
 python_files = ['test_*.py', '*_test.py']
-pythonpath = ['.']
 addopts = '-v --cov=cba_core_lib --cov-report=term-missing --cov-branch'
 #addopts = '-v --cov=cba_core_lib --cov-report=term-missing --cov-fail-under=80'
 #addopts = '-v --cov=cba_core_lib --cov-report=term-missing --cov-report=html'
@@ -116,7 +115,7 @@ per-file-ignores = ['*/__init__.py: F401,E402,C901']
 # Configuration for Pylint (linter)
 # Consider using Ruff instead/additionally
 # Need quotes around key with space
-[tool.pylint.'MESSAGES CONTROL']
+[tool.pylint."MESSAGES CONTROL"]
 disable = [
     'missing-module-docstring',
     'missing-class-docstring',
