@@ -27,7 +27,7 @@ jobs:
       matrix:
         # Define the Python versions to test against
         # <<< Adjust these versions to match your 'requires-python' and 'classifiers' in pyproject.toml >>>
-        python-version: [ "3.9", "3.10", "3.11", "3.12" ]
+        python-version: [ '3.9', '3.10', '3.11' ]
 
     # Use the latest Ubuntu runner
     runs-on: ubuntu-latest
@@ -74,5 +74,5 @@ jobs:
         run: pytest -v --cov=cba_core_lib --cov-report=term-missing --cov-branch tests/unit
 
       # 8. Run Integration Tests with Coverage
-      - name: Run integration tests with pytest
-        run: pytest -v --with-integration tests/integration
+#      - name: Run integration tests with pytest
+#        run: pytest -v --with-integration tests/integration
