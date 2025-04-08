@@ -71,7 +71,7 @@ jobs:
 
       # 7. Run Unit Tests with Coverage
       - name: Run unit tests with pytest
-        run: pytest -v --cov-report=term-missing --cov-branch tests/unit
+        run: pytest -v --cov=cba_core_lib --cov-report=term-missing --cov-branch tests/unit
 
       # 8. Run Integration Tests with Coverage
       - name: Run integration tests with pytest
