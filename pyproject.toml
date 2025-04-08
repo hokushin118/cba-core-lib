@@ -1,0 +1,138 @@
+# https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license
+# Specifies the build system requirements (PEP 518)
+# Tells pip and other tools how to build your package
+[build-system]
+requires = [
+    'setuptools>=61.0', # Use a reasonably modern version of setuptools
+    'wheel'             # Needed for building wheel distributions
+]
+build-backend = 'setuptools.build_meta' # Specifies setuptools as the build backend
+
+# Project metadata (PEP 621)
+# This section defines information about your library
+[project]
+name = 'cba-core-lib' # The name used on PyPI and for pip install
+version = '1.0.1'     # Library's version
+authors = [
+    { name = 'CBA', email = 'cbotee@proton.me' }
+]
+maintainers = [
+    { name = 'CBA', email = 'cbotee@proton.me' },
+]
+description = 'This is a shared Python library designed for reuse across multiple microservices within the CBA application.'
+readme = 'README.md' # Path to the README file
+requires-python = '>=3.9' # Minimum Python version supported
+license = 'MIT'
+keywords = ['cba', 'library', 'shared', 'utility'] # Keywords for PyPI search
+classifiers = [
+    # Trove classifiers: https://pypi.org/classifiers/
+    # How mature is this project? Common values are
+    #   3 - Alpha
+    #   4 - Beta
+    #   5 - Production/Stable
+    'Development Status :: 4 - Beta',
+    # Indicate who the project is intended for
+    'Intended Audience :: Developers',
+    'Operating System :: OS Independent',
+    # Specify the Python versions you support here
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Topic :: Software Development :: Build Tools',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+]
+
+# Runtime dependencies required by your library
+dependencies = []
+
+# Project URLs shown on PyPI
+[project.urls]
+Homepage = 'https://github.com/hokushin118/cba-core-lib'
+Repository = 'https://github.com/hokushin118/cba-core-lib'
+'Bug Tracker' = 'https://github.com/hokushin118/cba-core-lib/issues'
+# Documentation = 'https://cba-core-lib.hokushin118.io'
+# Changelog = 'https://github.com/hokushin118/cba-core-lib/blob/master/CHANGELOG.md'
+
+# Define dependencies for testing and development
+[project.optional-dependencies]
+test = [
+    'pytest>=7.0',
+    'pytest-asyncio==0.21.1',
+    'pytest-sugar==0.9.7',
+    'pytest-cov==6.1.1', # For coverage reporting
+    'pytest-integration-mark==0.2.0'
+]
+dev = [
+    'cba-core-lib[test]', # Include test dependencies
+    'pylint>=2.14.0,<3',
+    'flake8>=4.0.1,<5',
+    'black>=23.0,<25', # Formatter
+    # Dev tools
+    'pre-commit>=3.0,<5', # For git hooks
+    'build>=1.0,<2', # For building packages locally
+    'twine>=4.0,<6', # For uploading packages to PyPI
+]
+
+# --- Tool-specific configurations ---
+
+# Configuration for setuptools
+[tool.setuptools]
+# include-package-data=true is needed if you have non-Python files (templates, data)
+# inside your 'src/cba_core_lib' directory that should be included in the package
+# Ensure these files are tracked by Git or listed in MANIFEST.in if not using Git tracking
+# include-package-data = true # Set to true if you have non-code filesinside your package dir
+
+# *** CRITICAL FOR SRC-LAYOUT ***
+# Tells setuptools where to find the package code.
+[tool.setuptools.packages.find]
+where = ['src']  # Look for packages in the 'src' directory
+
+# Configuration for coverage.py (used by pytest-cov)
+[tool.coverage.run]
+source = ['src/cba-core-lib']
+branch = true
+
+# Configuration for pytest (testing framework)
+[tool.pytest]
+testpaths = ['tests']
+python_files = ['test_*.py', '*_test.py']
+pythonpath = ['.']
+addopts = '-v --cov=cba_core_lib --cov-report=term-missing --cov-branch'
+#addopts = '-v --cov=cba_core_lib --cov-report=term-missing --cov-fail-under=80'
+#addopts = '-v --cov=cba_core_lib --cov-report=term-missing --cov-report=html'
+asyncio_mode = 'auto' # For pytest-asyncio
+
+[tool.coverage.report]
+omit = ['tests/*', '*/__init__.py']
+show_missing = true
+#fail_under = 80 # Example minimum coverage percentage
+
+[tool.flake8]
+max-line-length = 88 # Match Black's default
+per-file-ignores = ['*/__init__.py: F401,E402,C901']
+
+# Configuration for Pylint (linter)
+# Consider using Ruff instead/additionally
+# Need quotes around key with space
+[tool.pylint.'MESSAGES CONTROL']
+disable = [
+    'missing-module-docstring',
+    'missing-class-docstring',
+    'missing-function-docstring',
+    'invalid-name', # Allow short variable names like 'i', 'e'
+    'import-error', # Often handled better by type checkers like mypy
+    'too-few-public-methods',
+    'too-many-arguments',
+    'fixme',
+    'E1101', # Instance has no member (often false positives)
+    'R0913', # Too many arguments
+    'R0903', # Too few public methods
+    'R0902', # Too many instance attributes
+]
+
+# Configuration for Black (formatter)
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311', 'py312'] # Specify supported Python versions

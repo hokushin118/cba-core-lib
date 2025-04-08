@@ -294,3 +294,38 @@ To execute the library's tests, follow these steps:
 * Review the test output for any failures or errors.
 * If you are using a different testing framework than pytest, update the
   testing command accordingly.
+
+## Lint
+
+This project uses `pylint` to enforce code quality and style standards. To lint
+the code, use the following command:
+
+```bash
+pylint src/
+```
+
+## Build
+
+It's recommended to build the distribution packages within a virtual
+environment. To create the source distribution (`sdist`) and wheel
+distribution (`wheel`), execute:
+
+* Build wheel only:
+
+    ```bash
+    python -m build -w
+    ```
+
+* Build source distribution only:
+
+    ```bash
+    python -m build -s
+    ```
+
+* Build both (default):
+
+    ```bash
+    python -m build
+    ```
+
+This command will create the distribution files in the dist/ directory.
