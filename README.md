@@ -1,6 +1,6 @@
 # cba-core-lib Shared Library
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9](https://img.shields.io/badge/Python-3.9-green.svg)](https://shields.io/)
 
 This repository hosts a shared Python library intended for reuse across
@@ -30,8 +30,8 @@ This library is built using the following core technologies:
 
 **Additional Libraries and Tools:**
 
-* **pytest:** For unit testing.
-    * **pylint:** For linting.
+* **pytest** For unit testing.
+* **pylint** For linting.
 
 **Rationale:**
 
@@ -128,7 +128,7 @@ development environment.
 * Clone the `cba-core-lib` repository to your local machine:
 
     ```bash
-    git clone [https://github.com/hokushin118/cba-core-lib.git](https://github.com/hokushin118/cba-core-lib.git)
+    git clone [https://github.com/hokushin118/cba_core_lib.git](https://github.com/hokushin118/cba_core_lib.git)
     ```
 
 **2. Navigate to the Project Directory:**
@@ -136,7 +136,7 @@ development environment.
 * Change your current directory to the cloned repository:
 
     ```bash
-    cd cba-core-lib
+    cd cba_core_lib
     ```
 
 **3. Create and Activate a Virtual Environment:**
@@ -329,3 +329,28 @@ distribution (`wheel`), execute:
     ```
 
 This command will create the distribution files in the dist/ directory.
+
+## Installation
+
+To install the `cba-core-lib` package, you have a few options depending on your
+needs and where the package is located.
+
+**1. Installing from a Local Distribution File (Wheel or Source Distribution):
+**
+
+If you have built the package locally and have the distribution files in
+the `dist/` directory, you can install it using `pip`.
+
+* **Install from a wheel file:**
+
+    ```bash
+    pip install dist/cba_core_lib-<version>-py3-none-any.whl
+    ```
+
+* **Install from a source distribution:**
+
+    ```bash
+    pip install dist/cba_core-lib-<version>.tar.gz
+    ```
+
+Replace `<version>` with the actual version number of the package.
