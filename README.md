@@ -352,5 +352,10 @@ the `dist/` directory, you can install it using `pip`.
     ```bash
     pip install dist/cba_core-lib-<version>.tar.gz
     ```
+* **Install from test.pypi.org (for testing):**
+
+    ```bash
+    pip install --index-url https://test.pypi.org/simple/ cba-core-lib==<version>
+    ```
 
 Replace `<version>` with the actual version number of the package.
