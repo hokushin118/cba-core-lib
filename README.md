@@ -344,7 +344,7 @@ the `dist/` directory, you can install it using `pip`.
 * **Install from a wheel file:**
 
     ```bash
-    pip install dist/cba_core_lib_1-<version>-py3-none-any.whl
+    pip install dist/cba_core_lib-<version>-py3-none-any.whl
     ```
 
 * **Install from a source distribution:**
@@ -352,10 +352,18 @@ the `dist/` directory, you can install it using `pip`.
     ```bash
     pip install dist/cba_core-lib-<version>.tar.gz
     ```
-* **Install from test.pypi.org (for testing):**
+* To install or upgrade the library from the test PyPI repository, use the
+  following command:
 
     ```bash
-    pip install --index-url https://test.pypi.org/simple/ cba-core-lib==<version>
+    pip install --index-url [https://test.pypi.org/simple/](https://test.pypi.org/simple/) --upgrade cba-core-lib
     ```
 
 Replace `<version>` with the actual version number of the package.
+
+* To verify the installation and check the library's details, use the following
+  command:
+
+    ```bash
+    pip show cba-core-lib
+    ```

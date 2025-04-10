@@ -35,11 +35,11 @@ jobs:
     steps:
       # 1. Checkout the repository code
       - name: Checkout repository
-        uses: actions/checkout@v4 # Use latest version
+        uses: actions/checkout@v4
 
       # 2. Set up the specific Python version for this job instance
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5 # Use latest version
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -69,10 +69,16 @@ jobs:
           flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 src --count --max-complexity=10 --max-line-length=127 --statistics
 
-      # 7. Run Unit Tests with Coverage
+      # 6. Run Unit Tests with Coverage
       - name: Run unit tests with pytest
-        run: pytest -v --cov=cba_core_lib --cov-report=term-missing --cov-branch tests/unit
+        run: |
+          pytest -v \
+          --cov=cba_core_lib \
+          --cov-report=term-missing \
+          --cov-branch \
+          tests/unit
 
-      # 8. Run Integration Tests with Coverage
+#      # 7. Run Integration Tests
 #      - name: Run integration tests with pytest
-#        run: pytest -v --with-integration tests/integration
+#        run: |
+#          pytest -v -m integration tests/integration
