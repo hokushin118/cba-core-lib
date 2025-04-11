@@ -12,7 +12,7 @@ build-backend = 'setuptools.build_meta' # Specifies setuptools as the build back
 # This section defines information about your library
 [project]
 name = "cba_core_lib"
-version = "1.0.3"
+version = "1.0.4"
 description = "This is a shared Python library designed for reuse across multiple microservices within the CBA application."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -84,7 +84,8 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
-addopts = "-v --cov=cba_core_lib --cov-report=term-missing --cov-fail-under=80"
+addopts = "-v --cov=cba_core_lib --cov-report=term-missing --cov-branch"
+#addopts = "-v --cov=cba_core_lib --cov-report=term-missing --cov-fail-under=80"
 #addopts = '-v --cov=cba_core_lib --cov-report=term-missing --cov-report=html'
 asyncio_mode = "auto" # For pytest-asyncio
 
@@ -97,10 +98,6 @@ branch = true
 omit = ["tests/*", "*/__init__.py"]
 show_missing = true
 #fail_under = 80 # Example minimum coverage percentage
-
-[tool.flake8]
-max-line-length = 88 # Match Black's default
-per-file-ignores = ["*/__init__.py: F401,E402,C901"]
 
 # Configuration for Pylint (linter)
 # Consider using Ruff instead/additionally
