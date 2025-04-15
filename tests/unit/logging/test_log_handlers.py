@@ -104,7 +104,6 @@ def test_formatter_applied(test_logger, log_format, date_format):
     assert stdout_handler.formatter is stderr_handler.formatter
     # Check the format strings on the formatter instance
     formatter = stdout_handler.formatter
-    # pylint: disable=W0212
     assert formatter._fmt == log_format
     assert formatter.datefmt == date_format
 
@@ -156,6 +155,5 @@ def test_default_settings_smoke_test(test_logger):
     assert stderr_handler.level == logging.ERROR
 
     formatter = stdout_handler.formatter
-    # pylint: disable=W0212
     assert formatter._fmt == DEFAULT_LOG_FORMAT
     assert formatter.datefmt == DEFAULT_LOG_DATE_FORMAT
