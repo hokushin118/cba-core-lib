@@ -74,6 +74,12 @@ installed:
 * Using a virtual environment for Python development is strongly recommended to
   isolate project dependencies.
 
+## Code Style Guidelines
+
+This project adheres to
+the [PEP 8 - Style Guide for Python Code](https://peps.python.org/pep-0008/) to
+ensure consistent and readable code.
+
 ## Project Versioning
 
 This project adheres to [Semantic Versioning 2.0.0](https://semver.org) for

@@ -12,16 +12,16 @@ build-backend = 'setuptools.build_meta' # Specifies setuptools as the build back
 # This section defines information about your library
 [project]
 name = "cba_core_lib"
-version = "1.0.4"
+version = "1.0.5"
 description = "This is a shared Python library designed for reuse across multiple microservices within the CBA application."
 readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"
 authors = [
-    {name = "CBA", email = "cbotee@proton.me"}
+    { name = "CBA", email = "cbotee@proton.me" }
 ]
 maintainers = [
-    {name = "CBA", email = "cbotee@proton.me"}
+    { name = "CBA", email = "cbotee@proton.me" }
 ]
 keywords = ["cba", "library", "shared", "utility"]
 classifiers = [
@@ -58,6 +58,7 @@ test = [
 ]
 dev = [
     "cba_core_lib[test]",
+    "kafka-python>=2.0.6",
     "pylint>=2.14.0,<3",
     "flake8>=4.0.1,<5",
     "black>=23.0,<25",
@@ -116,6 +117,7 @@ disable = [
     "R0913", # Too many arguments
     "R0903", # Too few public methods
     "R0902", # Too many instance attributes
+    "W0212", # Access to a protected member
 ]
 
 # Configuration for Black (formatter)
