@@ -4,9 +4,8 @@ Utility functions.
 This module contains utility functions to REST API.
 """
 import hashlib
-import json
 import logging
-from typing import Any, Optional, Mapping
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -94,110 +93,18 @@ def validate_content_type(
     raise UnsupportedMediaTypeError(expected_media_type, actual_content_type)
 
 
-def generate_etag_hash(data: Mapping[str, Any]) -> str:
-    """Generates a stable ETag hash (MD5) for the given data structure.
+def generate_etag_hash(data: dict) -> str:
+    """Generates an ETag hash for the given data.
 
-    This function calculates the MD5 hash of the JSON string representation
-    of the input data structure (sorting keys for stability). The resulting
-    hash can be used as an ETag for HTTP caching.
+    This function calculates the MD5 hash of the string representation of the
+    input dictionary.  The resulting hash can be used as an ETag for caching
+    purposes.
 
     Args:
-        data: A dictionary or other mapping representing the data to be hashed.
+        data: A dictionary representing the data to be hashed.
 
     Returns:
-        A string representing the hexadecimal MD5 hash of the data's stable
-        JSON representation.
-
-    Raises:
-        TypeError: If the input is not a dictionary or cannot be serialized to JSON.
-        
-    Usage:
-        # Basic usage with a simple dictionary
-        user_data = {"id": 123, "name": "John Doe", "email": "john@example.com"}
-        etag = generate_etag_hash(user_data)
-        # etag will be something like "a1b2c3d4e5f6g7h8i9j0..."
-        
-        # Using with FastAPI for HTTP caching
-        from fastapi import FastAPI, Response
-        from fastapi.responses import JSONResponse
-        
-        app = FastAPI()
-        
-        @app.get("/users/{user_id}")
-        def get_user(user_id: int, response: Response):
-            # Fetch user data from database
-            user_data = {"id": user_id, "name": "John Doe", "email": "john@example.com"}
-            
-            # Generate ETag for the response
-            etag = generate_etag_hash(user_data)
-            
-            # Set the ETag in the response headers
-            response.headers["ETag"] = f'"{etag}"'
-            
-            return JSONResponse(content=user_data)
-            
-        # Using with Flask for HTTP caching
-        from flask import Flask, jsonify, make_response
-        
-        app = Flask(__name__)
-        
-        @app.route("/users/<int:user_id>")
-        def get_user(user_id):
-            # Fetch user data from database
-            user_data = {"id": user_id, "name": "John Doe", "email": "john@example.com"}
-            
-            # Generate ETag for the response
-            etag = generate_etag_hash(user_data)
-            
-            # Create response with ETag
-            response = make_response(jsonify(user_data))
-            response.headers["ETag"] = f'"{etag}"'
-            
-            return response
-            
-        # Using for conditional requests (If-None-Match)
-        @app.get("/users/{user_id}")
-        def get_user_if_modified(user_id: int, request: Request, response: Response):
-            # Fetch user data from database
-            user_data = {"id": user_id, "name": "John Doe", "email": "john@example.com"}
-            
-            # Generate ETag for the response
-            etag = generate_etag_hash(user_data)
-            
-            # Check if client has a cached version
-            if_none_match = request.headers.get("If-None-Match")
-            if if_none_match and if_none_match.strip('"') == etag:
-                # Client's cached version is still valid
-                return Response(status_code=304)  # Not Modified
-                
-            # Client needs the updated data
-            response.headers["ETag"] = f'"{etag}"'
-            return JSONResponse(content=user_data)
+        A string representing the hexadecimal MD5 hash of the data.
     """
-    # Validate that the input is a dictionary
-    if not isinstance(data, dict):
-        logger.error(
-            "Failed to generate ETag hash: input must be a dictionary, got %s",
-            type(data).__name__
-        )
-        raise TypeError(
-            f"Input must be a dictionary, got {type(data).__name__}")
-
-    try:
-        # Use JSON dumps with sorted keys for a stable representation
-        # Ensure non-ASCII characters are handled correctly
-        # (ensure_ascii=False) and separators are compact.
-        data_str = json.dumps(
-            data,
-            sort_keys=True,
-            ensure_ascii=False,
-            separators=(',', ':')
-        )
-        encoded_str = data_str.encode('utf-8')
-        return hashlib.md5(encoded_str).hexdigest()
-    except TypeError as err:
-        logger.error(
-            "Failed to generate ETag hash due to JSON serialization error: %s",
-            err
-        )
-        raise  # Re-raise the TypeError
+    data_str = str(data).encode('utf-8')  # Encode to bytes before hashing
+    return hashlib.md5(data_str).hexdigest()  # Hash the data
