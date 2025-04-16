@@ -12,7 +12,7 @@ build-backend = 'setuptools.build_meta' # Specifies setuptools as the build back
 # This section defines information about your library
 [project]
 name = "cba_core_lib"
-version = "1.0.5"
+version = "1.0.11"
 description = "This is a shared Python library designed for reuse across multiple microservices within the CBA application."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -118,6 +118,7 @@ disable = [
     "R0903", # Too few public methods
     "R0902", # Too many instance attributes
     "W0212", # Access to a protected member
+    "R0801", #  Similar lines
 ]
 
 # Configuration for Black (formatter)

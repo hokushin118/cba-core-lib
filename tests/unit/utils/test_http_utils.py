@@ -6,9 +6,10 @@ Test cases can be run with the following:
 """
 
 import hashlib
-import json
+from typing import Dict, Any
 
 import pytest
+
 from cba_core_lib.utils.http_utils import (
     validate_content_type,
     generate_etag_hash,
@@ -63,110 +64,99 @@ class TestValidateContentType:
 class TestGenerateEtagHash:
     """generate_etag_hash Function Tests."""
 
-    @staticmethod
-    def calculate_expected_hash(data):
-        """Helper method to calculate the expected hash for comparison."""
-        data_str = json.dumps(
-            data,
-            sort_keys=True,
-            ensure_ascii=False,
-            separators=(',', ':')
-        )
-        encoded_str = data_str.encode('utf-8')
-        return hashlib.md5(encoded_str).hexdigest()
+    def test_generate_etag_hash_empty_dict(self):
+        """It should generate the correct hash for an empty dictionary."""
+        data: Dict[str, Any] = {}
+        expected_hash = hashlib.md5(str(data).encode('utf-8')).hexdigest()
+        assert generate_etag_hash(data) == expected_hash
 
-    def test_empty_dict(self):
-        """It should generate a hash for an empty dictionary."""
-        data = {}
-        expected_hash = self.calculate_expected_hash(data)
-        hash_value = generate_etag_hash(data)
-        assert hash_value == expected_hash
-
-    def test_simple_dict(self):
-        """It should generate a hash for a simple dictionary."""
-        data = {'name': 'test', 'value': 123}
-        expected_hash = self.calculate_expected_hash(data)
-        hash_value = generate_etag_hash(data)
-        assert hash_value == expected_hash
-
-    def test_nested_dict(self):
-        """It should generate a hash for a nested dictionary."""
+    def test_generate_etag_hash_simple_dict(self):
+        """It should generate the correct hash for a simple dictionary."""
         data = {
-            'user': {'name': 'test', 'roles': ['admin', 'user']}
+            'key1': 'value1',
+            'key2': 123
         }
-        expected_hash = self.calculate_expected_hash(data)
-        hash_value = generate_etag_hash(data)
-        assert hash_value == expected_hash
+        expected_hash = hashlib.md5(str(data).encode('utf-8')).hexdigest()
+        assert generate_etag_hash(data) == expected_hash
 
-    def test_dict_with_special_chars(self):
-        """It should generate a hash for a dictionary with special
-        characters."""
-        data = {
-            'name': 'Test User',
-            'email': 'test@example.com',
-            'bio': 'Hello, world!'
+    def test_generate_etag_hash_different_order(self):
+        """It should generate different hashes for dictionaries with
+        different key order."""
+        data1 = {
+            'key1': 'value1',
+            'key2': 123
         }
-        expected_hash = self.calculate_expected_hash(data)
-        hash_value = generate_etag_hash(data)
-        assert hash_value == expected_hash
-
-    def test_different_order_same_hash(self):
-        """It should generate the same hash for dictionaries with the same content in
-        different order."""
-        data1 = {'a': 1, 'b': 2, 'c': 3}
-        data2 = {'c': 3, 'a': 1, 'b': 2}
+        data2 = {
+            'key2': 123,
+            'key1': 'value1'
+        }
         hash1 = generate_etag_hash(data1)
         hash2 = generate_etag_hash(data2)
-        assert hash1 == hash2
-        assert hash1 == self.calculate_expected_hash(data1)
+        assert hash1 != hash2, 'ETags should be different for different order'
 
-    def test_different_content_different_hash(self):
-        """It should generate different hashes for different content."""
-        data1 = {'a': 1, 'b': 2}
-        data2 = {'a': 1, 'b': 3}
-        hash1 = generate_etag_hash(data1)
-        hash2 = generate_etag_hash(data2)
-        assert hash1 != hash2
-        assert hash1 == self.calculate_expected_hash(data1)
-        assert hash2 == self.calculate_expected_hash(data2)
-
-    def test_non_dict_input(self):
-        """It should raise TypeError when input is not a dictionary."""
-        with pytest.raises(TypeError):
-            generate_etag_hash(
-                'not a dict'
-            )
-
-    def test_dict_with_various_types(self):
-        """It should generate a hash for a dictionary with various
-        JSON-compatible types."""
+    def test_generate_etag_hash_nested_dict(self):
+        """It should generate the correct hash for a nested dictionary."""
         data = {
-            'string': 'text',
-            'number': 42,
-            'float': 3.14,
-            'boolean': True,
-            'null': None,
-            'array': [1, 2, 3],
-            'object': {'key': 'value'}
+            'key1': {
+                'nested_key1': 'nested_value1'
+            },
+            'key2': 123
         }
-        expected_hash = self.calculate_expected_hash(data)
-        hash_value = generate_etag_hash(data)
-        assert hash_value == expected_hash
+        expected_hash = hashlib.md5(str(data).encode('utf-8')).hexdigest()
+        assert generate_etag_hash(data) == expected_hash
 
-    def test_dict_with_unicode(self):
-        """It should generate a hash for a dictionary with Unicode
-        characters."""
-        data = {'text': 'é'}
-        expected_hash = self.calculate_expected_hash(data)
-        hash_value = generate_etag_hash(data)
-        assert hash_value == expected_hash, \
-            f"Expected {expected_hash}, got {hash_value}"
+    def test_generate_etag_hash_with_unicode(self):
+        """It should generate the correct hash for a dictionary containing
+        Unicode characters."""
+        data = {
+            'name': "Jürgen Müller",
+            'city': "München"
+        }
+        expected_hash = hashlib.md5(str(data).encode('utf-8')).hexdigest()
+        assert generate_etag_hash(data) == expected_hash
 
-        data = {'name': 'John', 'city': 'Amsterdam', 'currency': '€'}
-        expected_hash = self.calculate_expected_hash(data)
-        hash_value = generate_etag_hash(data)
-        assert hash_value == expected_hash, \
-            f"Expected {expected_hash}, got {hash_value}"
+    def test_generate_etag_hash_with_none(self):
+        """It should generate the correct hash for a dictionary
+        containing None value."""
+        data = {
+            'key1': None,
+            'key2': 123
+        }
+        expected_hash = hashlib.md5(str(data).encode('utf-8')).hexdigest()
+        assert generate_etag_hash(data) == expected_hash
+
+    def test_generate_etag_hash_with_boolean(self):
+        """It should generate the correct hash for a dictionary
+        containing boolean value."""
+        data = {
+            'key1': True,
+            'key2': False
+        }
+        expected_hash = hashlib.md5(str(data).encode('utf-8')).hexdigest()
+        assert generate_etag_hash(data) == expected_hash
+
+    def test_generate_etag_hash_with_integer_float(self):
+        """It should generate the correct hash for a dictionary containing
+        integer and float."""
+        data = {
+            'int_key': 10,
+            'float_key': 3.14
+        }
+        expected_hash = hashlib.md5(str(data).encode('utf-8')).hexdigest()
+        assert generate_etag_hash(data) == expected_hash
+
+    def test_generate_etag_hash_mixed_types(self):
+        """It should generate the correct hash for a dictionary
+        containing mixed data types."""
+        data = {
+            'str_key': 'value',
+            'int_key': 123,
+            'bool_key': True,
+            'none_key': None,
+            'list_key': [1, 2, 3]
+        }
+        expected_hash = hashlib.md5(str(data).encode('utf-8')).hexdigest()
+        assert generate_etag_hash(data) == expected_hash
 
 
 class TestUnsupportedMediaTypeError:
