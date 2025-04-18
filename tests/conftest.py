@@ -4,6 +4,9 @@ Pytest configuration and fixtures.
 import logging
 from unittest.mock import MagicMock
 
+from kafka import KafkaProducer
+from pytest import fixture
+
 from cba_core_lib.audit.configs import AuditConfig
 from cba_core_lib.audit.core import AuditLogger
 from cba_core_lib.kafka.configs import (
@@ -14,9 +17,6 @@ from cba_core_lib.kafka.configs import (
 
 )
 from cba_core_lib.kafka.producer import KafkaProducerManager
-
-from kafka import KafkaProducer
-from pytest import fixture
 
 TEST_KAFKA_BROKERS = 'kafka1:9092,kafka2:9092'
 TEST_TOPIC = 'audit-topic'

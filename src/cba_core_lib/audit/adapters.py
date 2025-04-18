@@ -4,11 +4,10 @@ import time
 from datetime import datetime
 from functools import wraps
 from json import JSONDecodeError
-from typing import Any, Optional, Callable, Union
+from typing import Any, Optional, Callable, Union, Dict
 
 from ..utils.common import generate_correlation_id
-from ..utils.constants import COOKIES_NAME, AUTHORIZATION_HEADER, \
-    ANONYMOUS_USER_NAME
+from ..utils.constants import ANONYMOUS_USER_NAME
 from ..utils.enums import Status
 
 logger = logging.getLogger(__name__)
@@ -55,7 +54,14 @@ except ImportError as core_import_err:
     AuditResponseDetails = Any
     AuditErrorDetails = Any
 
+# Default event type for HTTP requests logged by this adapter
 DEFAULT_EVENT_TYPE = 'http_request'
+
+# Default headers to exclude from logging
+DEFAULT_EXCLUDE_HEADERS = {
+    'authorization', 'cookie', 'set-cookie',
+    'proxy-authorization'
+}
 
 
 ######################################################################
@@ -181,15 +187,44 @@ class FlaskAuditAdapter:
 
         return processed_body
 
+    def _filter_headers(
+            self,
+            headers: Dict[str, str]
+    ) -> Dict[str, str]:
+        """Filters sensitive headers from a dictionary.
+
+        Uses the `exclude_request_headers` list configured in the core
+        `AuditConfig` (case-insensitive).
+
+        Args:
+            headers: The original dictionary of headers.
+
+        Returns:
+            A new dictionary with excluded headers removed.
+        """
+        # Get excluded headers from the config attached to the core logger
+        excluded_lower = {
+            h.lower() for h in getattr(
+                self.config,
+                'exclude_request_headers',
+                DEFAULT_EXCLUDE_HEADERS
+            )
+        }
+
+        return {
+            k: v for k, v in headers.items()
+            if isinstance(k, str) and k.lower() not in excluded_lower
+        }
+
     def _extract_request_details(
             self
     ) -> AuditRequestDetails:
-        """Extracts relevant details from the current Flask request object
-        and populates an AuditRequestDetails model.
+        """Extracts relevant details from the current Flask `request` object.
 
         Returns:
-            An AuditRequestDetails instance containing extracted information.
-            Returns an empty instance if no request context is found.
+            An `AuditRequestDetails` instance populated with data from the
+            current Flask request context. Returns a minimally populated
+            instance if the request context is unavailable.
         """
         if not request:
             logger.warning(
@@ -217,7 +252,7 @@ class FlaskAuditAdapter:
         return AuditRequestDetails(
             method=method,
             url=url,
-            headers=headers,
+            headers=self._filter_headers(headers),
             body=self._get_request_body(),
             client_ip=client_ip,
         )
@@ -333,9 +368,22 @@ class FlaskAuditAdapter:
             )
             headers = {'error': 'could not extract headers'}
 
+        excluded_lower = {
+            h.lower() for h in getattr(
+                self.config,
+                'exclude_response_headers',
+                DEFAULT_EXCLUDE_HEADERS
+            )
+        }
+
+        filtered_headers = {
+            k: v for k, v in headers.items()
+            if isinstance(k, str) and k.lower() not in excluded_lower
+        }
+
         return AuditResponseDetails(
             status_code=status_code,
-            headers=headers,
+            headers=filtered_headers,
             body=self._get_response_body(response),
         )
 
@@ -465,7 +513,6 @@ class FlaskAuditAdapter:
                 except Exception as err:  # pylint: disable=W0703
                     # 3. Handle Exception from Decorated Function
                     status = Status.FAILURE.value
-                    response = self._generate_error_response(err)
                     error_obj = AuditErrorDetails(
                         type=type(err).__name__,
                         message=str(err)
@@ -481,28 +528,14 @@ class FlaskAuditAdapter:
                     # 4. Build and Log Audit Event
                     end_time = time.monotonic()
                     try:
-                        if response is not None:
+                        if status == Status.SUCCESS.value and response is not None:
                             resp_details = self._extract_response_details(
                                 response
                             )
 
-                            # Prepare headers without sensitive authorization
-                            # information
-                            req_details.headers.pop(
-                                AUTHORIZATION_HEADER,
-                                None
-                            )
-
-                            req_details.headers.pop(
-                                COOKIES_NAME,
-                                None
-                            )
-
                         if user_id is None:
-                            user_id = self._get_user_id_from_context()
-
-                        if user_id is None:
-                            user_id = ANONYMOUS_USER_NAME
+                            user_id = self._get_user_id_from_context() \
+                                      or ANONYMOUS_USER_NAME
 
                         # Use the user id as the key (encoded as UTF-8) to help
                         # with ordered partitioning
