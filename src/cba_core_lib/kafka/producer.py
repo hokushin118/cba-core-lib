@@ -10,7 +10,6 @@ module to capture and log the relevant information and errors.
 """
 import logging
 import threading
-import uuid
 from types import TracebackType
 from typing import Optional, Union, Type, Dict, Any, Callable
 
@@ -28,18 +27,6 @@ from kafka.errors import (  # pylint: disable=E0401
 from .configs import KafkaProducerConfig
 
 logger = logging.getLogger(__name__)
-
-
-def generate_correlation_id() -> str:
-    """Generates a unique correlation ID.
-
-    It should create and return a new universally unique identifier (UUID)
-    as a string, which can be used to correlate logs or trace requests.
-
-    Returns:
-        str: A unique correlation ID in string format.
-    """
-    return str(uuid.uuid4())
 
 
 class KafkaProducerManager:

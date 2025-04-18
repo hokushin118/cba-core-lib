@@ -1,5 +1,5 @@
 """
-Utility functions.
+Http utility functions.
 
 This module contains utility functions to REST API.
 """
@@ -38,7 +38,7 @@ class UnsupportedMediaTypeError(ValueError):
 
 
 ######################################################################
-#  UTILITY FUNCTIONS
+#  HTTP UTILITY FUNCTIONS
 ######################################################################
 def validate_content_type(
         expected_media_type: str,

@@ -3,8 +3,11 @@ Constants.
 
 This module contains constants used throughout the microservice.
 """
+# Cookie header
+COOKIES_NAME: str = 'Cookie'
 # Authorization header
-AUTHORIZATION_HEADER = 'Authorization'
+AUTHORIZATION_HEADER: str = 'Authorization'
 # An authentication scheme name used to transmit security tokens,
 # most commonly JSON Web Tokens (JWTs)
-BEARER_HEADER = 'Bearer'
+BEARER_HEADER: str = 'Bearer'
+ANONYMOUS_USER_NAME: str = 'Anonymous'

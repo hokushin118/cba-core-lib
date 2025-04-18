@@ -3,18 +3,21 @@ Package: cba_core_lib.
 
 Reusable utilities for Python microservices.
 """
-from .kafka.configs import (
+from .audit import (
+    AuditConfig,
+    AuditLogger,
+    FlaskAuditAdapter,
+)
+from .kafka import (
     SecurityProtocol,
     AutoOffsetReset,
     KafkaConsumerConfig,
     KafkaProducerConfig,
-)
-from .kafka.consumer import KafkaConsumerManager
-from .kafka.producer import (
+    KafkaConsumerManager,
     KafkaProducerManager,
-    generate_correlation_id,
 )
 from .logging import init_logging
+from .utils.common import generate_correlation_id
 from .utils.constants import (
     AUTHORIZATION_HEADER,
     BEARER_HEADER,
@@ -127,4 +130,19 @@ __all__ = [
     'BEARER_HEADER',
     # Enums
     'UserRole',
+    # Audit Components
+    'AuditConfig',
+    'AuditLogger',
+    'FlaskAuditAdapter',
+    # Kafka Components
+    'SecurityProtocol',
+    'AutoOffsetReset',
+    'KafkaConsumerConfig',
+    'KafkaProducerConfig',
+    'KafkaConsumerManager',
+    'KafkaProducerManager',
+    # Common utilities
+    'generate_correlation_id',
+    # Logging
+    'init_logging',
 ]
