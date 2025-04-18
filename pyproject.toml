@@ -1,24 +1,16 @@
-# https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license
-# Specifies the build system requirements (PEP 518)
-# Tells pip and other tools how to build your package
 [build-system]
-requires = [
-    'setuptools>=78.0', # Use a reasonably modern version of setuptools
-    'wheel'             # Needed for building wheel distributions
-]
-build-backend = 'setuptools.build_meta' # Specifies setuptools as the build backend
+requires = ["setuptools>=61.0.0,<62.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
 
-# Project metadata (PEP 621)
-# This section defines information about your library
 [project]
 name = "cba_core_lib"
-version = "1.0.13"
-description = "This is a shared Python library designed for reuse across multiple microservices within the CBA application."
+version = "1.0.16"
+description = "Core library for CBA microservices"
 readme = "README.md"
 requires-python = ">=3.9"
-license = "MIT"
+license = {text = "MIT"}
 authors = [
-    { name = "CBA", email = "cbotee@proton.me" }
+    {name = "CBA Team", email = "cbotee@proton.me"}
 ]
 maintainers = [
     { name = "CBA", email = "cbotee@proton.me" }
@@ -27,27 +19,24 @@ keywords = ["cba", "library", "shared", "utility"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Topic :: Software Development :: Build Tools",
-    "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 
-# Runtime dependencies required by your library
-dependencies = []
+dependencies = [
+    "kafka-python>=2.0.2",
+    "pydantic>=2.0.0",
+    "python-json-logger>=2.0.4",
+    "requests>=2.31.0",
+]
 
-# Project URLs shown on PyPI
 [project.urls]
 Homepage = "https://github.com/hokushin118/cba-core-lib"
 Repository = "https://github.com/hokushin118/cba-core-lib"
 "Bug Tracker" = "https://github.com/hokushin118/cba-core-lib/issues"
-# Documentation = 'https://cba-core-lib.hokushin118.io'
-# Changelog = 'https://github.com/hokushin118/cba-core-lib/blob/master/CHANGELOG.md'
 
-# Define dependencies for testing and development
 [project.optional-dependencies]
 test = [
     "pytest>=7.0",
@@ -68,30 +57,23 @@ dev = [
     "twine>=4.0,<6"
 ]
 
-# --- Tool-specific configurations ---
-
-# Configuration for setuptools
 [tool.setuptools]
-# include-package-data=true is needed if you have non-Python files (templates, data)
-# inside your 'src/cba_core_lib_1' directory that should be included in the package
-# Ensure these files are tracked by Git or listed in MANIFEST.in if not using Git tracking
-include-package-data = true # Set to true if you have non-code filesinside your package dir
+package-dir = {"" = "src"}
 
-# *** CRITICAL FOR SRC-LAYOUT ***
-# Tells setuptools where to find the package code.
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["cba_core_lib*"]
+exclude = ["tests*", "tests.*", "*.tests", "*.tests.*"]
 
-# Configuration for pytest (testing framework)
+[tool.setuptools.package-data]
+cba_core_lib = ["py.typed"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
 addopts = "-v --cov=cba_core_lib --cov-report=term-missing --cov-branch"
-#addopts = "-v --cov=cba_core_lib --cov-report=term-missing --cov-fail-under=80"
-#addopts = '-v --cov=cba_core_lib --cov-report=term-missing --cov-report=html'
-asyncio_mode = "auto" # For pytest-asyncio
+asyncio_mode = "auto"
 
-# Configuration for coverage.py (used by pytest-cov)
 [tool.coverage.run]
 source = ["src/cba_core_lib"]
 branch = true
@@ -99,30 +81,25 @@ branch = true
 [tool.coverage.report]
 omit = ["tests/*", "*/__init__.py"]
 show_missing = true
-#fail_under = 80 # Example minimum coverage percentage
 
-# Configuration for Pylint (linter)
-# Consider using Ruff instead/additionally
-# Need quotes around key with space
 [tool.pylint."MESSAGES CONTROL"]
 disable = [
     "missing-module-docstring",
     "missing-class-docstring",
     "missing-function-docstring",
-    "invalid-name", # Allow short variable names like 'i', 'e'
-    "import-error", # Often handled better by type checkers like mypy
+    "invalid-name",
+    "import-error",
     "too-few-public-methods",
     "too-many-arguments",
     "fixme",
-    "E1101", # Instance has no member (often false positives)
-    "R0913", # Too many arguments
-    "R0903", # Too few public methods
-    "R0902", # Too many instance attributes
-    "W0212", # Access to a protected member
-    "R0801", #  Similar lines
+    "E1101",
+    "R0913",
+    "R0903",
+    "R0902",
+    "W0212",
+    "R0801",
 ]
 
-# Configuration for Black (formatter)
 [tool.black]
 line-length = 88
-target-version = ["py39", "py310", "py311", "py312"] # Specify supported Python versions
+target-version = ["py39", "py310", "py311", "py312"]
