@@ -3,6 +3,8 @@ Package: utils.
 
 Package for common utility functions.
 """
+from . import status
+from .common import generate_correlation_id
 from .constants import (
     AUTHORIZATION_HEADER,
     BEARER_HEADER,
@@ -18,7 +20,6 @@ from .http_utils import (
     generate_etag_hash,
     UnsupportedMediaTypeError
 )
-from . import status
 
 __all__ = [
     # Constants
@@ -36,4 +37,6 @@ __all__ = [
     'UnsupportedMediaTypeError',
     # Status module
     'status',
+    # Common utilities
+    'generate_correlation_id',
 ]

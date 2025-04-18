@@ -10,10 +10,7 @@ from .configs import (
     KafkaProducerConfig
 )
 from .consumer import KafkaConsumerManager
-from .producer import (
-    KafkaProducerManager,
-    generate_correlation_id
-)
+from .producer import KafkaProducerManager
 
 __all__ = [
     'SecurityProtocol',
@@ -22,5 +19,4 @@ __all__ = [
     'KafkaProducerConfig',
     'KafkaConsumerManager',
     'KafkaProducerManager',
-    'generate_correlation_id',
 ]

@@ -6,7 +6,8 @@ Test cases can be run with the following:
 """
 
 import pytest
-from cba_core_lib.utils.enums import UserRole
+
+from cba_core_lib.utils.enums import UserRole, Status
 
 
 ######################################################################
@@ -50,3 +51,58 @@ class TestUserRoleEnum:
         an invalid string."""
         with pytest.raises(ValueError):
             UserRole('INVALID_ROLE')
+
+
+class TestStatusEnum:
+    """Status Enum Tests."""
+
+    def test_status_values(self):
+        """It should have the correct string values for each enum member."""
+        assert Status.SUCCESS.value == 'SUCCESS'
+        assert Status.FAILURE.value == 'FAILURE'
+        assert Status.PENDING.value == 'PENDING'
+        assert Status.RUNNING.value == 'RUNNING'
+        assert Status.COMPLETED.value == 'COMPLETED'
+
+    def test_status_status_value_property(self):
+        """It should return the correct string from the status_value
+        property."""
+        assert Status.SUCCESS.status_value == 'SUCCESS'
+        assert Status.FAILURE.status_value == 'FAILURE'
+        assert Status.PENDING.status_value == 'PENDING'
+        assert Status.RUNNING.status_value == 'RUNNING'
+        assert Status.COMPLETED.status_value == 'COMPLETED'
+
+    def test_status_enum_creation_from_value(self):
+        """It should create enum members from their string values."""
+        assert Status('SUCCESS') == Status.SUCCESS
+        assert Status('FAILURE') == Status.FAILURE
+        assert Status('PENDING') == Status.PENDING
+        assert Status('RUNNING') == Status.RUNNING
+        assert Status('COMPLETED') == Status.COMPLETED
+
+    def test_status_enum_comparison(self):
+        """It should allow comparison of enum members."""
+        assert Status.SUCCESS == Status.SUCCESS
+        assert Status.SUCCESS != Status.FAILURE
+        assert Status.FAILURE == Status.FAILURE
+        assert Status.FAILURE != Status.PENDING
+        assert Status.PENDING == Status.PENDING
+        assert Status.PENDING != Status.RUNNING
+        assert Status.RUNNING == Status.RUNNING
+        assert Status.COMPLETED != Status.SUCCESS
+        assert Status.COMPLETED == Status.COMPLETED
+
+    def test_status_name_attribute(self):
+        """It should return the correct name attribute of enum members."""
+        assert Status.SUCCESS.name == 'SUCCESS'
+        assert Status.FAILURE.name == 'FAILURE'
+        assert Status.PENDING.name == 'PENDING'
+        assert Status.RUNNING.name == 'RUNNING'
+        assert Status.COMPLETED.name == 'COMPLETED'
+
+    def test_status_invalid_value(self):
+        """It should raise ValueError when creating an enum member with
+        an invalid string."""
+        with pytest.raises(ValueError):
+            Status('INVALID_STATUS')

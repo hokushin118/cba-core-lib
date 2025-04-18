@@ -4,17 +4,24 @@ Pytest configuration and fixtures.
 import logging
 from unittest.mock import MagicMock
 
-from kafka import KafkaProducer
-from pytest import fixture
-
-from cba_core_lib import KafkaProducerConfig
-from cba_core_lib.kafka import (
+from cba_core_lib.audit.configs import AuditConfig
+from cba_core_lib.audit.core import AuditLogger
+from cba_core_lib.kafka.configs import (
+    KafkaProducerConfig,
     KafkaConsumerConfig,
     AutoOffsetReset,
     SecurityProtocol
+
 )
+from cba_core_lib.kafka.producer import KafkaProducerManager
+
+from kafka import KafkaProducer
+from pytest import fixture
 
 TEST_KAFKA_BROKERS = 'kafka1:9092,kafka2:9092'
+TEST_TOPIC = 'audit-topic'
+TEST_SERVICE_NAME = 'test-service'
+TEST_USER_ID = '4243d65c-4feb-47a5-8571-89e3f2615bdf'
 
 
 ######################################################################
@@ -171,3 +178,24 @@ def mock_kafka_producer():
     """
     mock = MagicMock(spec=KafkaProducer)
     return mock
+
+
+@fixture
+def audit_config():
+    """Sets up an AuditConfig instance for testing."""
+    return AuditConfig(
+        audit_topic=TEST_TOPIC,
+        event_source=TEST_SERVICE_NAME,
+    )
+
+
+@fixture
+def audit_logger():
+    """Sets up an AuditLogger instance for testing."""
+    config = AuditConfig(
+        audit_topic=TEST_TOPIC,
+        event_source=TEST_SERVICE_NAME,
+        user_identifier_func=lambda: TEST_USER_ID
+    )
+    producer_manager = KafkaProducerManager(kafka_producer_config)
+    return AuditLogger(config, producer_manager)

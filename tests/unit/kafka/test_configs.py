@@ -90,7 +90,10 @@ class TestAutoOffsetReset:
 class TestKafkaConsumerConfig:
     """The KafkaConsumerConfig Class Tests."""
 
-    def test_valid_initialization(self, kafka_consumer_config):
+    def test_valid_initialization(
+            self,
+            kafka_consumer_config
+    ):
         """It should initialize all attributes correctly when provided
         valid values."""
         assert kafka_consumer_config.bootstrap_servers == TEST_KAFKA_BROKERS
@@ -178,7 +181,10 @@ class TestKafkaConsumerConfig:
                 group_id=None,  # This will cause an error in __post_init__
             )
 
-    def test_attribute_types(self, kafka_consumer_config):
+    def test_attribute_types(
+            self,
+            kafka_consumer_config
+    ):
         """It should have the correct types for each attribute."""
         assert isinstance(kafka_consumer_config.bootstrap_servers, str)
         assert isinstance(kafka_consumer_config.topic, str)
@@ -224,7 +230,7 @@ class TestKafkaConsumerConfig:
         with pytest.raises(FrozenInstanceError):
             kafka_consumer_config.bootstrap_servers = 'new_server:9092'
         with pytest.raises(FrozenInstanceError):
-            kafka_consumer_config.topic = 'new_topic'
+            kafka_consumer_config.config = 'new_topic'
         with pytest.raises(FrozenInstanceError):
             kafka_consumer_config.key_format = 'json'
         with pytest.raises(FrozenInstanceError):
