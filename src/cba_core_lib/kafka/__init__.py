@@ -11,6 +11,10 @@ from .configs import (
 )
 from .consumer import KafkaConsumerManager
 from .producer import KafkaProducerManager
+from .utils import (
+    safe_string_serializer,
+    safe_json_serializer
+)
 
 __all__ = [
     'SecurityProtocol',
@@ -19,4 +23,6 @@ __all__ = [
     'KafkaProducerConfig',
     'KafkaConsumerManager',
     'KafkaProducerManager',
+    'safe_string_serializer',
+    'safe_json_serializer',
 ]
