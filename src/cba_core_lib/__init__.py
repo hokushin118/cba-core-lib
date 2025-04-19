@@ -15,6 +15,8 @@ from .kafka import (
     KafkaProducerConfig,
     KafkaConsumerManager,
     KafkaProducerManager,
+    safe_string_serializer,
+    safe_json_serializer,
 )
 from .logging import init_logging
 from .utils.common import generate_correlation_id
@@ -76,7 +78,7 @@ from .utils.status import (
     HTTP_511_NETWORK_AUTHENTICATION_REQUIRED,
 )
 
-__version__ = '1.0.16'
+__version__ = '1.0.17'
 
 __all__ = [
     # HTTP Status Codes
@@ -141,6 +143,8 @@ __all__ = [
     'KafkaProducerConfig',
     'KafkaConsumerManager',
     'KafkaProducerManager',
+    'safe_string_serializer',
+    'safe_json_serializer',
     # Common utilities
     'generate_correlation_id',
     # Logging
