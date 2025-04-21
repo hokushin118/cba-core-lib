@@ -78,7 +78,7 @@ from .utils.status import (
     HTTP_511_NETWORK_AUTHENTICATION_REQUIRED,
 )
 
-__version__ = '1.0.17'
+__version__ = '1.0.19'
 
 __all__ = [
     # HTTP Status Codes

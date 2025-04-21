@@ -4,30 +4,11 @@ import time
 from datetime import datetime
 from functools import wraps
 from json import JSONDecodeError
-from typing import Any, Optional, Callable, Union, Dict
+from typing import Any, Optional, Callable, Union, Dict, TYPE_CHECKING
 
 from ..utils.common import generate_correlation_id
 from ..utils.constants import ANONYMOUS_USER_NAME
 from ..utils.enums import Status
-
-logger = logging.getLogger(__name__)
-
-# Framework specific imports - handled with try-except for robustness
-try:
-    from flask import request, Response, current_app
-
-    _flask_installed = True
-except ImportError as flask_import_err:
-    _flask_installed = False
-    Response = Any
-    request = None
-    current_app = None
-    logger.error(
-        "Failed to import Flask framework library components: %s. "
-        "FlaskAuditAdapter functionality will be limited.",
-        flask_import_err,
-        exc_info=True
-    )
 
 # Core library imports (adjust path as needed)
 try:
@@ -41,7 +22,7 @@ try:
 
     _core_lib_audit_available = True
 except ImportError as core_import_err:
-    logger.error(
+    logging.getLogger(__name__).error(
         "Failed to import core audit library components: %s. "
         "FlaskAuditAdapter cannot function.",
         core_import_err,
@@ -59,9 +40,17 @@ DEFAULT_EVENT_TYPE = 'http_request'
 
 # Default headers to exclude from logging
 DEFAULT_EXCLUDE_HEADERS = {
-    'authorization', 'cookie', 'set-cookie',
+    'authorization',
+    'cookie',
+    'set-cookie',
     'proxy-authorization'
 }
+
+# This block is ignored at runtime but used by type checkers
+if TYPE_CHECKING:
+    from flask import Response as FlaskResponse
+
+logger = logging.getLogger(__name__)
 
 
 ######################################################################
@@ -79,7 +68,11 @@ class FlaskAuditAdapter:
     (`create_audit_decorator`) to automatically audit Flask route execution.
     It relies on an instance of the core, framework-independent
     `AuditLogger` for configuration and sending events to Kafka.
+
+    Flask dependencies are loaded lazily only when this adapter is instantiated
+    or its methods requiring Flask context are called.
     """
+    _flask_response_cls: Optional[type] = None
 
     def __init__(
             self,
@@ -87,24 +80,25 @@ class FlaskAuditAdapter:
     ) -> None:
         """Initializes the Flask Audit Adapter.
 
+        Performs necessary checks and attempts to import Flask components.
+
         Args:
             audit_logger: An initialized instance of the core AuditLogger.
                          This logger holds the audit configuration and the
                          KafkaProducerManager instance.
 
         Raises:
-            RuntimeError: If Flask is not installed.
+            RuntimeError: If the core audit library components are missing,
+                          or if the Flask framework is not installed when
+                          this adapter is instantiated.
             TypeError: If audit_logger is not an instance of AuditLogger.
         """
-        if not _flask_installed:
-            raise RuntimeError(
-                'Flask framework is required to use FlaskAuditAdapter.'
-            )
         if not _core_lib_audit_available:
             raise RuntimeError(
                 'Core audit library components (AuditLogger, models) '
-                'could not be imported.'
+                'could not be imported. FlaskAuditAdapter cannot initialize.'
             )
+
         if not isinstance(
                 audit_logger,
                 AuditLogger
@@ -112,6 +106,26 @@ class FlaskAuditAdapter:
             raise TypeError(
                 'The audit_logger must be an instance of the AuditLogger.'
             )
+
+        try:
+            # pylint: disable=C0415
+            from flask import Response as FlaskResponseCls
+            # Store the imported Response class for later isinstance checks
+            self._flask_response_cls = FlaskResponseCls
+            logger.debug(
+                'Flask successfully imported for FlaskAuditAdapter.'
+            )
+        except ImportError as err:
+            logger.error(
+                "Flask framework import failed during F"
+                "laskAuditAdapter init: %s",
+                err
+            )
+            raise RuntimeError(
+                'Flask framework is required to use FlaskAuditAdapter, but it '
+                'could not be imported.'
+            ) from err
+
         self.audit_logger = audit_logger
         self.config = audit_logger.config
 
@@ -119,12 +133,68 @@ class FlaskAuditAdapter:
             'FlaskAuditAdapter initialized, using AuditLogger.'
         )
 
+    def _get_flask_component(
+            self,
+            component_name: str
+    ) -> Any:
+        """Safely imports a component from Flask, raising RuntimeError if
+        unavailable.
+
+        This method attempts to import a specified component from the
+        Flask library. It handles the import process and raises a
+        `RuntimeError` if the import fails. This is designed to provide
+        more informative error handling when dealing with optional Flask
+        dependencies.
+
+        Args:
+            component_name: The name of the Flask component to import (e.g.,
+                'request', 'current_app', 'Response').
+
+        Returns:
+            The imported Flask component.
+
+        Raises:
+            RuntimeError: If the specified Flask component cannot be imported.
+                The original `ImportError` is chained to this exception for
+                debugging purposes.
+        """
+        try:
+            if component_name == 'request':
+                from flask import request  # pylint: disable=C0415
+                return request
+
+            if component_name == 'current_app':
+                from flask import current_app  # pylint: disable=C0415
+                return current_app
+
+            if component_name == 'Response':
+                if self._flask_response_cls:
+                    return self._flask_response_cls
+
+                # pylint: disable=C0415
+                from flask import Response as FlaskResponseCls
+                self._flask_response_cls = FlaskResponseCls
+                return self._flask_response_cls
+
+            raise ImportError(
+                f"Unknown Flask component requested: {component_name}"
+            )
+
+        except ImportError as err:
+            logger.critical(
+                "Failed to lazy-import Flask component '%s' unexpectedly.",
+                component_name
+            )
+            raise RuntimeError(
+                f"Required Flask component {component_name} could not be imported."
+            ) from err
+
     ######################################################################
     # FRAMEWORK-SPECIFIC DATA EXTRACTION HELPERS
     ######################################################################
     def _get_request_body(
             self
-    ) -> Union[dict, str, None, Any]:  # More specific return type hint
+    ) -> Union[dict, str, None, Any]:
         """Safely extracts and potentially parses the Flask request body.
 
         Attempts to decode the body as text and parse it as JSON if the
@@ -136,9 +206,11 @@ class FlaskAuditAdapter:
             JSON parse), None if no body, a placeholder string for decoding
             errors, or an error message string for other exceptions.
         """
-        if not _flask_installed or not request:
+        # Lazy import request
+        request = self._get_flask_component('request')
+        if not request:
             logger.warning(
-                "Flask request context not available in _get_request_body."
+                'Flask request context not available in _get_request_body.'
             )
             return None
 
@@ -226,6 +298,8 @@ class FlaskAuditAdapter:
             current Flask request context. Returns a minimally populated
             instance if the request context is unavailable.
         """
+        # Lazy import request
+        request = self._get_flask_component('request')
         if not request:
             logger.warning(
                 'Flask request context not available for extracting details.'
@@ -259,7 +333,7 @@ class FlaskAuditAdapter:
 
     def _get_response_body(
             self,
-            response: Optional[Response]
+            response: Optional['FlaskResponse']
     ) -> Union[dict, str, None, Any]:
         """Safely extracts and potentially parses the Flask response body.
 
@@ -276,13 +350,13 @@ class FlaskAuditAdapter:
             a placeholder string for decoding errors, or an error message
             string for other exceptions.
         """
-        if not _flask_installed:
-            logger.warning(
-                'Flask not installed, cannot process response body.'
+        if not self._flask_response_cls:
+            logger.error(
+                'Flask Response class not available for _get_response_body check.'
             )
-            return None
+            return '<error: Flask Response class unavailable>'
 
-        if not response or not isinstance(response, Response):
+        if not response or not isinstance(response, self._flask_response_cls):
             return None
 
         try:
@@ -333,7 +407,7 @@ class FlaskAuditAdapter:
 
     def _extract_response_details(
             self,
-            response: Optional[Response]
+            response: Optional['FlaskResponse']
     ) -> Optional[AuditResponseDetails]:
         """Extracts relevant details from the Flask Response object and
         populates an AuditResponseDetails model.
@@ -399,6 +473,9 @@ class FlaskAuditAdapter:
             The core logger will use the configured anonymous ID if this
             returns None.
         """
+        # Lazy import current_app
+        current_app = self._get_flask_component('current_app')
+
         user_id_func = getattr(
             self.config,
             'user_identifier_func',
@@ -437,7 +514,7 @@ class FlaskAuditAdapter:
     def create_audit_decorator(
             self,
             event_type: str = DEFAULT_EVENT_TYPE
-    ) -> Callable[[Callable[..., Response]], Callable[..., Response]]:
+    ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
         """Creates a Flask decorator for automatically auditing route
         execution.
 
@@ -453,39 +530,54 @@ class FlaskAuditAdapter:
         Returns:
             A decorator function that can be applied to Flask route functions.
         """
+        # Check core lib availability early
         if not _core_lib_audit_available:
             logger.error(
                 'Cannot create audit decorator: Core audit library '
                 'components missing.'
             )
 
-            # Return a dummy decorator that does nothing
+            def dummy_decorator(f):
+                return f
+
+            return dummy_decorator
+
+        # Check Response class availability early if needed for the decorator logic itself
+        if not self._flask_response_cls:
+            logger.error(
+                'Flask Response class unavailable, cannot create functional audit decorator.'
+            )
+
             def dummy_decorator(f):
                 return f
 
             return dummy_decorator
 
         def decorator(
-                function: Callable[..., Response]
-        ) -> Callable[..., Response]:
+                function: Callable[..., Any]
+        ) -> Callable[..., Any]:
             """The actual decorator that wraps the Flask route function."""
 
             @wraps(function)
+            # pylint: disable=R0914
             def wrapper(
                     *args: Any,
                     **kwargs: Any
-            ) -> Response:
+            ) -> Any:
                 """The wrapper function executed for each request to the
                 decorated route."""
-                # Ensure we are in a Flask context before proceeding
-                if not _flask_installed or not current_app:
+                # Lazy import current_app and Response class
+                # reference inside the wrapper
+                current_app = self._get_flask_component('current_app')
+                response_cls = self._flask_response_cls
+
+                if not current_app:
                     logger.error(
-                        'Audit skipped: Flask application context '
-                        'not available.'
+                        'Audit skipped: Flask application context not available.'
                     )
                     return function(*args, **kwargs)
 
-                response: Optional[Response] = None
+                response: Optional[Any] = None
                 start_time = time.monotonic()
                 correlation_id = generate_correlation_id()
                 status = Status.SUCCESS.value
@@ -501,8 +593,10 @@ class FlaskAuditAdapter:
 
                     # 2. Execute Decorated Function
                     response = function(*args, **kwargs)
-                    # Ensure the returned value is a Flask Response object
-                    if not isinstance(response, Response):
+
+                    # 3. Check if response is a Flask Response using
+                    # stored class
+                    if not isinstance(response, response_cls):
                         logger.debug(
                             'Decorated function did not return a Flask '
                             'Response object.'
@@ -511,7 +605,7 @@ class FlaskAuditAdapter:
                     return response
 
                 except Exception as err:  # pylint: disable=W0703
-                    # 3. Handle Exception from Decorated Function
+                    # 4. Handle Exception from Decorated Function
                     status = Status.FAILURE.value
                     error_obj = AuditErrorDetails(
                         type=type(err).__name__,
@@ -525,21 +619,33 @@ class FlaskAuditAdapter:
                     )
                     raise err
                 finally:
-                    # 4. Build and Log Audit Event
+                    # 5. Build and Log Audit Event
                     end_time = time.monotonic()
                     try:
-                        if status == Status.SUCCESS.value and response is not None:
+                        # Ensure response details are extracted only for
+                        # Flask Response objects
+                        if status == Status.SUCCESS.value \
+                                and response is not None \
+                                and isinstance(response, response_cls):
                             resp_details = self._extract_response_details(
                                 response
                             )
 
+                        # Get user ID again if it was None (might be set
+                        # later in request) Ensure context is checked within
+                        # this method if needed
                         if user_id is None:
                             user_id = self._get_user_id_from_context() \
                                       or ANONYMOUS_USER_NAME
 
                         # Use the user id as the key (encoded as UTF-8) to help
                         # with ordered partitioning
-                        kafka_key = f"{user_id}-{req_details.method}".encode(
+                        kafka_key_method = getattr(
+                            req_details,
+                            'method',
+                            'UNKNOWN'
+                        )
+                        kafka_key = f"{user_id}-{kafka_key_method}".encode(
                             'utf-8'
                         )
 
