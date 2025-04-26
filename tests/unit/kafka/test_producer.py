@@ -14,7 +14,7 @@ from kafka.errors import (
     KafkaError,
 )
 
-from cba_core_lib import KafkaProducerManager
+from cba_core_lib.kafka.producer import KafkaProducerManager
 
 
 def test_initialization_success(

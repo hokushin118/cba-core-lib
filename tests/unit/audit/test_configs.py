@@ -9,7 +9,7 @@ from typing import Optional
 
 import pytest
 
-from cba_core_lib import AuditConfig
+from cba_core_lib.audit import AuditConfig
 from tests.conftest import (
     TEST_TOPIC,
     TEST_SERVICE_NAME,

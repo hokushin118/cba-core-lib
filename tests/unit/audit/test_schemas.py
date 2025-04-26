@@ -7,8 +7,8 @@ Test cases can be run with the following:
 from datetime import datetime
 
 import pytest
-# pylint: disable=E0611
-from pydantic_core._pydantic_core import ValidationError
+from pydantic import ValidationError
+from pytest import fixture
 
 from cba_core_lib.audit.schemas import (
     AuditEvent,
@@ -25,6 +25,18 @@ from tests.conftest import TEST_USER_ID, TEST_SERVICE_NAME
 class TestAuditRequestDetails:
     """Tests for the AuditRequestDetails model."""
 
+    @fixture
+    def request_data(self):
+        """Provides a sample dictionary representing audit request
+        details data for testing."""
+        return {
+            'method': 'GET',
+            'url': 'http://example.com/',
+            'headers': {'Content-Type': 'application/json'},
+            'body': {'key': 'value'},
+            'client_ip': '192.0.2.1',
+        }
+
     def test_valid_request_details(self):
         """It should create a valid AuditRequestDetails instance."""
         request_data = {
@@ -35,16 +47,12 @@ class TestAuditRequestDetails:
         assert request_details.method == 'GET'
         assert str(request_details.url) == 'http://example.com/'
 
-    def test_valid_request_details_with_optional_fields(self):
+    def test_valid_request_details_with_optional_fields(
+            self,
+            request_data
+    ):
         """It should create a valid AuditRequestDetails instance
         with all fields."""
-        request_data = {
-            'method': 'GET',
-            'url': 'http://example.com/',
-            'headers': {'Content-Type': 'application/json'},
-            'body': {'key': 'value'},
-            'client_ip': '192.0.2.1',
-        }
         request_details = AuditRequestDetails(**request_data)
         assert request_details.method == 'GET'
         assert str(request_details.url) == 'http://example.com/'
@@ -98,9 +106,36 @@ class TestAuditRequestDetails:
         except Exception as err:  # pylint: disable=W0703
             assert False, f"Raised an exception {err}"
 
+    def test_audit_request_details_immutability(
+            self,
+            request_data
+    ):
+        """It should ensure AuditRequestDetails instance is immutable."""
+        request_details = AuditRequestDetails(**request_data)
+        with pytest.raises(ValidationError):
+            request_details.method = 'new-method'
+        with pytest.raises(ValidationError):
+            request_details.url = 'new-url'
+        with pytest.raises(ValidationError):
+            request_details.headers = {'new-key': 'new-value'}
+        with pytest.raises(ValidationError):
+            request_details.body = {'new-key', 'new-value'}
+        with pytest.raises(ValidationError):
+            request_details.client_ip = '0.0.0.0'
+
 
 class TestAuditResponseDetails:
     """The AuditResponseDetails Class Tests."""
+
+    @fixture
+    def response_data(self):
+        """Provides a sample dictionary representing audit response
+        details data for testing."""
+        return {
+            'status_code': 200,
+            'headers': {'Content-Type': 'application/json'},
+            'body': {'result': 'success'},
+        }
 
     def test_valid_response_details(self):
         """It should create a valid AuditResponseDetails instance."""
@@ -108,14 +143,12 @@ class TestAuditResponseDetails:
         response_details = AuditResponseDetails(**response_data)
         assert response_details.status_code == 200
 
-    def test_valid_response_details_with_optional_fields(self):
+    def test_valid_response_details_with_optional_fields(
+            self,
+            response_data
+    ):
         """It should create a valid AuditResponseDetails
         instance with all fields."""
-        response_data = {
-            'status_code': 200,
-            'headers': {'Content-Type': 'application/json'},
-            'body': {'result': 'success'},
-        }
         response_details = AuditResponseDetails(**response_data)
         assert response_details.status_code == 200
         assert response_details.headers == {"Content-Type": "application/json"}
@@ -151,9 +184,32 @@ class TestAuditResponseDetails:
         except Exception as err:  # pylint: disable=W0703
             assert False, f"Raised an exception {err}"
 
+    def test_audit_response_details_immutability(
+            self,
+            response_data
+    ):
+        """It should ensure AuditResponseDetails instance is immutable."""
+        response_details = AuditResponseDetails(**response_data)
+        with pytest.raises(ValidationError):
+            response_details.status_code = 'new-status-code'
+        with pytest.raises(ValidationError):
+            response_details.headers = {'new-key': 'new-value'}
+        with pytest.raises(ValidationError):
+            response_details.body = {'new-key', 'new-value'}
+
 
 class TestAuditErrorDetails:
     """The AuditErrorDetails Class Tests."""
+
+    @fixture
+    def error_data(self):
+        """Provides a sample dictionary representing audit error
+        details data for testing."""
+        return {
+            'type': 'ValueError',
+            'message': 'Invalid value provided.',
+            'traceback': 'Traceback (most recent call last):\n  File ...',
+        }
 
     def test_valid_error_details(self):
         """It should create a valid AuditErrorDetails instance."""
@@ -165,14 +221,12 @@ class TestAuditErrorDetails:
         assert error_details.type == 'ValueError'
         assert error_details.message == 'Invalid value provided.'
 
-    def test_valid_error_details_with_traceback(self):
+    def test_valid_error_details_with_traceback(
+            self,
+            error_data
+    ):
         """It should create a valid AuditErrorDetails instance
         with traceback."""
-        error_data = {
-            'type': 'ValueError',
-            'message': 'Invalid value provided.',
-            'traceback': 'Traceback (most recent call last):\n  File ...',
-        }
         error_details = AuditErrorDetails(**error_data)
         assert error_details.type == 'ValueError'
         assert error_details.message == 'Invalid value provided.'
@@ -214,23 +268,45 @@ class TestAuditErrorDetails:
                 traceback=123
             )
 
+    def test_audit_error_details_immutability(
+            self,
+            error_data
+    ):
+        """It should ensure AuditErrorDetails instance is immutable."""
+        error_details = AuditErrorDetails(**error_data)
+        with pytest.raises(ValidationError):
+            error_details.type = 'new-type'
+        with pytest.raises(ValidationError):
+            error_details.message = 'new-message'
+        with pytest.raises(ValidationError):
+            error_details.traceback = 'new-trace-back'
+
 
 class TestAuditEvent:
     """The AuditEvent Class Tests."""
 
-    def test_valid_audit_event(self):
-        """It should create a valid AuditEvent instance with all
-        required fields."""
-        now = datetime.now()
-        event_data = {
-            'timestamp': now,
+    now = datetime.now()
+
+    @fixture
+    def event_data(self):
+        """Provides a sample dictionary representing audit error
+        details data for testing."""
+        return {
+            'timestamp': self.now,
             'correlation_id': 'test_correlation_id',
             'event_type': 'test_event_type',
             'status': 'success',
             'duration_ms': 100.0,
         }
+
+    def test_valid_audit_event(
+            self,
+            event_data
+    ):
+        """It should create a valid AuditEvent instance with all
+        required fields."""
         audit_event = AuditEvent(**event_data)
-        assert audit_event.timestamp == now
+        assert audit_event.timestamp == self.now
         assert audit_event.correlation_id == 'test_correlation_id'
         assert audit_event.event_type == 'test_event_type'
         assert audit_event.status == 'success'
@@ -327,3 +403,20 @@ class TestAuditEvent:
                 duration_ms=100.0,
                 error={'invalid': 'data'},  # Invalid error data
             )
+
+    def test_audit_event_immutability(
+            self,
+            event_data
+    ):
+        """It should ensure AuditEvent instance is immutable."""
+        audit_event = AuditEvent(**event_data)
+        with pytest.raises(ValidationError):
+            audit_event.timestamp = datetime.now()
+        with pytest.raises(ValidationError):
+            audit_event.correlation_id = 'new-correlation_id'
+        with pytest.raises(ValidationError):
+            audit_event.event_type = 'new-event_type'
+        with pytest.raises(ValidationError):
+            audit_event.status = 'new-status'
+        with pytest.raises(ValidationError):
+            audit_event.duration_ms = 200.0

@@ -9,11 +9,11 @@ from enum import Enum
 
 import pytest
 
-from cba_core_lib import KafkaProducerConfig
-from cba_core_lib.kafka import (
+from cba_core_lib.kafka.configs import (
     SecurityProtocol,
     AutoOffsetReset,
-    KafkaConsumerConfig
+    KafkaConsumerConfig,
+    KafkaProducerConfig
 )
 from tests.conftest import TEST_KAFKA_BROKERS
 

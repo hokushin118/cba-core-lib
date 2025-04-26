@@ -18,17 +18,10 @@ class UserRole(Enum):
     MODERATOR = 'ROLE_MODERATOR'
     ADMIN = 'ROLE_ADMIN'
 
-    @property
-    def role_value(self) -> str:
-        """Returns the string value associated with the enum member.
-
-        This property allows easy access to the string representation
-        of the role, which is often required when interacting with external
-        systems or databases.
-
-        Returns:
-            str: The string value of the role.
-        """
+    def __str__(
+            self
+    ) -> str:
+        """Returns the string value associated with the enum member."""
         return self.value
 
 
@@ -45,14 +38,20 @@ class Status(Enum):
     RUNNING = 'RUNNING'
     COMPLETED = 'COMPLETED'
 
-    @property
-    def status_value(self) -> str:
-        """Returns the string value associated with the enum member.
+    def __str__(
+            self
+    ) -> str:
+        """Returns the string value associated with the enum member."""
+        return self.value
 
-        This property allows easy access to the string representation
-        of the status.
 
-        Returns:
-            str: The string value of the status.
-        """
+class HTTPSchema(Enum):
+    """Enumeration representing HTTP schemas."""
+    HTTP = 'http://'
+    HTTPS = 'https://'
+
+    def __str__(
+            self
+    ) -> str:
+        """Returns the string value associated with the enum member."""
         return self.value

@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 from kafka.errors import NoBrokersAvailable
 
-from cba_core_lib import KafkaConsumerManager
+from cba_core_lib.kafka.consumer import KafkaConsumerManager
 
 
 def test_initialization_success(

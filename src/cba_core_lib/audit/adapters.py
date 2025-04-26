@@ -6,14 +6,14 @@ from functools import wraps
 from json import JSONDecodeError
 from typing import Any, Optional, Callable, Union, Dict, TYPE_CHECKING
 
-from ..utils.common import generate_correlation_id
-from ..utils.constants import ANONYMOUS_USER_NAME
-from ..utils.enums import Status
+from cba_core_lib.utils.common import generate_correlation_id
+from cba_core_lib.utils.constants import ANONYMOUS_USER_NAME
+from cba_core_lib.utils.enums import Status
 
 # Core library imports (adjust path as needed)
 try:
-    from .core import AuditLogger
-    from .schemas import (
+    from cba_core_lib.audit.core import AuditLogger
+    from cba_core_lib.audit.schemas import (
         AuditEvent,
         AuditRequestDetails,
         AuditResponseDetails,

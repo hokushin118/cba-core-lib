@@ -24,7 +24,7 @@ from kafka.errors import (  # pylint: disable=E0401
     KafkaError,
 )
 
-from .configs import KafkaProducerConfig
+from cba_core_lib.kafka.configs import KafkaProducerConfig
 
 logger = logging.getLogger(__name__)
 
