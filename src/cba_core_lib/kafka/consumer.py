@@ -25,7 +25,7 @@ from kafka.errors import (
 )
 from kafka.structs import TopicPartition, OffsetAndMetadata
 
-from .configs import KafkaConsumerConfig
+from cba_core_lib.kafka.configs import KafkaConsumerConfig
 
 logger = logging.getLogger(__name__)
 

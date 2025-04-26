@@ -2,11 +2,16 @@
 Pytest configuration and fixtures.
 """
 import logging
+import os
+from pathlib import Path
+from typing import Generator
 from unittest.mock import MagicMock
 
 from kafka import KafkaProducer
 from pytest import fixture
+from testcontainers.minio import MinioContainer
 
+from cba_core_lib import MinioConfig, MinioService
 from cba_core_lib.audit.configs import AuditConfig
 from cba_core_lib.audit.core import AuditLogger
 from cba_core_lib.kafka.configs import (
@@ -17,6 +22,19 @@ from cba_core_lib.kafka.configs import (
 
 )
 from cba_core_lib.kafka.producer import KafkaProducerManager
+from cba_core_lib.storage.schemas import SimpleFileData, FileUploadData
+
+TEST_ENDPOINT = 'http://localhost:9000'
+TEST_ACCESS_KEY = 'testaccesskey'
+TEST_SECRET_KEY = 'testsecretkey'
+TEST_USE_SSL = False
+TEST_BUCKET_NAME = 'test-bucket'
+TEST_FILES_FOLDER = 'test_files'
+TEST_FILE_NAME = 'test_file.txt'
+TEST_CONTENT_TYPE = 'text/plain'
+TEST_FILE_CONTENT = b"This is a test file."
+TEST_ETAG = 'testetag'
+TEST_FILE_SIZE = len(TEST_FILE_CONTENT)
 
 TEST_KAFKA_BROKERS = 'kafka1:9092,kafka2:9092'
 TEST_TOPIC = 'audit-topic'
@@ -40,6 +58,9 @@ def get_handler_by_stream(logger: logging.Logger, stream):
 
 ######################################################################
 #  FIXTURES
+######################################################################
+######################################################################
+#  LOGGER
 ######################################################################
 @fixture
 def test_logger(request):
@@ -65,6 +86,9 @@ def test_logger(request):
     yield logger
 
 
+######################################################################
+#  KAFKA
+######################################################################
 @fixture
 def kafka_consumer_config():
     """Sets up a KafkaConsumerConfig instance for testing."""
@@ -180,6 +204,9 @@ def mock_kafka_producer():
     return mock
 
 
+######################################################################
+#  AUDIT
+######################################################################
 @fixture
 def audit_config():
     """Sets up an AuditConfig instance for testing."""
@@ -199,3 +226,74 @@ def audit_logger():
     )
     producer_manager = KafkaProducerManager(kafka_producer_config)
     return AuditLogger(config, producer_manager)
+
+
+######################################################################
+#  MINIO
+######################################################################
+@fixture(scope='module')
+def minio_container() -> Generator[MinioContainer, None, None]:
+    """Fixture that provides a MinIO container for testing.
+
+    The container is started before the tests and stopped after all tests
+    in the module are complete."""
+    container = MinioContainer(
+        image='minio/minio:latest',
+        access_key=TEST_ACCESS_KEY,
+        secret_key=TEST_SECRET_KEY,
+    )
+    container.start()
+    yield container
+    container.stop()
+
+
+@fixture
+def minio_config(
+        minio_container: MinioContainer
+) -> MinioConfig:
+    """Provides a MinioConfig instance configured
+    to use the test container."""
+    host = minio_container.get_container_host_ip()
+    port = minio_container.get_exposed_port(9000)
+    endpoint = f"http://{host}:{port}"
+    return MinioConfig(
+        endpoint=endpoint,
+        access_key=TEST_ACCESS_KEY,
+        secret_key=TEST_SECRET_KEY,
+        use_ssl=TEST_USE_SSL
+    )
+
+
+@fixture
+def minio_service(
+        minio_config: MinioConfig
+) -> MinioService:
+    """Provides a MinioService instance configured to
+    use the test container."""
+    service = MinioService(minio_config)
+    # Ensure the test bucket exists
+    service.ensure_bucket_exists(TEST_BUCKET_NAME)
+    return service
+
+
+@fixture
+def test_upload_file() -> Generator[FileUploadData, None, None]:
+    """Provides a test FileUploadData instance."""
+    # Create test file if it doesn't exist
+    tests_dir = Path(os.path.dirname(__file__))
+    test_file_path = os.path.join(
+        tests_dir,
+        TEST_FILES_FOLDER,
+        TEST_FILE_NAME
+    )
+    with open(test_file_path, 'wb') as file_obj:
+        file_obj.write(TEST_FILE_CONTENT)
+
+    # Create FileUploadData instance
+    file_data = SimpleFileData(
+        content_bytes=TEST_FILE_CONTENT,
+        size=len(TEST_FILE_CONTENT),
+        filename=TEST_FILE_NAME,
+        content_type=TEST_CONTENT_TYPE
+    )
+    yield file_data

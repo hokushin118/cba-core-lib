@@ -3,17 +3,17 @@ Package: kafka.
 
 CBA Core Library - Kafka Utilities.
 """
+from cba_core_lib.kafka.consumer import KafkaConsumerManager
+from cba_core_lib.kafka.producer import KafkaProducerManager
+from cba_core_lib.kafka.utils import (
+    safe_string_serializer,
+    safe_json_serializer
+)
 from .configs import (
     SecurityProtocol,
     AutoOffsetReset,
     KafkaConsumerConfig,
     KafkaProducerConfig
-)
-from .consumer import KafkaConsumerManager
-from .producer import KafkaProducerManager
-from .utils import (
-    safe_string_serializer,
-    safe_json_serializer
 )
 
 __all__ = [

@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cba_core_lib"
-version = "1.0.19"
+version = "1.0.20"
 description = "Core library for CBA microservices"
 readme = "README.md"
 requires-python = ">=3.9"
-license = {text = "MIT"}
+license = { text = "MIT" }
 authors = [
-    {name = "CBA Team", email = "cbotee@proton.me"}
+    { name = "CBA Team", email = "cbotee@proton.me" }
 ]
 maintainers = [
     { name = "CBA", email = "cbotee@proton.me" }
@@ -30,6 +30,10 @@ dependencies = [
     "pydantic>=2.0.0",
     "python-json-logger>=2.0.4",
     "requests>=2.31.0",
+    "pydantic-settings>=2.0.3",
+    "pydantic[email]>=2.4.2",
+    "minio>=7.2.15",
+    "tenacity>=9.1.2",
 ]
 
 [project.urls]
@@ -43,22 +47,27 @@ test = [
     "pytest-asyncio==0.21.1",
     "pytest-sugar==0.9.7",
     "pytest-cov==6.1.1",
-    "pytest-integration-mark==0.2.0"
+    "pytest-integration-mark==0.2.0",
+    "testcontainers==4.9.2",
+    "testcontainers-minio==0.0.1rc1",
 ]
 dev = [
     "cba_core_lib[test]",
     "kafka-python>=2.0.6",
-    "pydantic==2.10.6",
     "pylint>=2.14.0,<3",
     "flake8>=4.0.1,<5",
     "black>=23.0,<25",
     "pre-commit>=3.0,<5",
     "build>=1.0,<2",
-    "twine>=4.0,<6"
+    "twine>=4.0,<6",
+    "pydantic[email]==2.4.2",
+    "pydantic-settings==2.0.3",
+    "minio==7.2.15",
+    "tenacity==9.1.2",
 ]
 
 [tool.setuptools]
-package-dir = {"" = "src"}
+package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -98,6 +107,7 @@ disable = [
     "R0902",
     "W0212",
     "R0801",
+    "W0621",
 ]
 
 [tool.black]

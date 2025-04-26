@@ -8,7 +8,7 @@ import uuid
 
 import pytest
 
-from cba_core_lib import generate_correlation_id
+from cba_core_lib.utils.common import generate_correlation_id
 
 
 ######################################################################

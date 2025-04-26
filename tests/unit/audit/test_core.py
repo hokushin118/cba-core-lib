@@ -10,8 +10,9 @@ from unittest.mock import MagicMock
 import pytest
 from kafka.errors import KafkaError
 
-from cba_core_lib import AuditLogger, KafkaProducerManager
+from cba_core_lib.audit import AuditLogger
 from cba_core_lib.audit.schemas import AuditEvent
+from cba_core_lib.kafka import KafkaProducerManager
 
 
 ######################################################################

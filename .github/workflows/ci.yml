@@ -78,7 +78,7 @@ jobs:
           --cov-branch \
           tests/unit
 
-#      # 7. Run Integration Tests
-#      - name: Run integration tests with pytest
-#        run: |
-#          pytest -v -m integration tests/integration
+      # 7. Run Integration Tests
+      - name: Run integration tests with pytest
+        run: |
+          pytest -v --with-integration --log-cli-level=DEBUG tests/integration

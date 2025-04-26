@@ -7,13 +7,13 @@ import logging
 from datetime import datetime
 from typing import Optional, Dict, Any
 
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, HttpUrl, ConfigDict
 
 logger = logging.getLogger(__name__)
 
 
 ######################################################################
-# SCHEMAS
+#  AUDIT SCHEMAS
 ######################################################################
 class AuditRequestDetails(BaseModel):
     """Model for request details.
@@ -34,12 +34,17 @@ class AuditRequestDetails(BaseModel):
     body: Optional[Any] = None
     client_ip: Optional[str] = None
 
-    class ConfigDict:
-        """Config class."""
+    model_config = ConfigDict(
+        #  Extra fields in the input data will be
+        #  silently ignored
+        extra='ignore',
         # pylint: disable=too-few-public-methods
-        from_attributes = True
+        from_attributes=True,
         # Allows the model to be populated by aliases
-        populate_by_name = True
+        populate_by_name=True,
+        # True. Instances of this class are immutable
+        frozen=True,
+    )
 
 
 class AuditResponseDetails(BaseModel):
@@ -57,12 +62,17 @@ class AuditResponseDetails(BaseModel):
     headers: Optional[Dict[str, str]] = None
     body: Optional[Any] = None
 
-    class ConfigDict:
-        """Config class."""
+    model_config = ConfigDict(
+        #  Extra fields in the input data will be
+        #  silently ignored
+        extra='ignore',
         # pylint: disable=too-few-public-methods
-        from_attributes = True
+        from_attributes=True,
         # Allows the model to be populated by aliases
-        populate_by_name = True
+        populate_by_name=True,
+        # True. Instances of this class are immutable
+        frozen=True,
+    )
 
 
 class AuditErrorDetails(BaseModel):
@@ -79,12 +89,17 @@ class AuditErrorDetails(BaseModel):
     message: str
     traceback: Optional[str] = None
 
-    class ConfigDict:
-        """Config class."""
+    model_config = ConfigDict(
+        #  Extra fields in the input data will be
+        #  silently ignored
+        extra='ignore',
         # pylint: disable=too-few-public-methods
-        from_attributes = True
+        from_attributes=True,
         # Allows the model to be populated by aliases
-        populate_by_name = True
+        populate_by_name=True,
+        # True. Instances of this class are immutable
+        frozen=True,
+    )
 
 
 class AuditEvent(BaseModel):
@@ -124,9 +139,14 @@ class AuditEvent(BaseModel):
     error: Optional[AuditErrorDetails] = None
     custom_data: Optional[Dict[str, Any]] = None
 
-    class ConfigDict:
-        """Config class."""
+    model_config = ConfigDict(
+        #  Extra fields in the input data will be
+        #  silently ignored
+        extra='ignore',
         # pylint: disable=too-few-public-methods
-        from_attributes = True
+        from_attributes=True,
         # Allows the model to be populated by aliases
-        populate_by_name = True
+        populate_by_name=True,
+        # True. Instances of this class are immutable
+        frozen=True,
+    )
