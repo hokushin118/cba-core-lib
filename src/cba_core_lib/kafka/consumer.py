@@ -6,6 +6,8 @@ the management of Kafka consumers within applications. It handles the
 lifecycle of a KafkaConsumer, including initialization, message consumption,
 health monitoring, and graceful shutdown.
 """
+from __future__ import annotations
+
 import logging
 import threading
 import time

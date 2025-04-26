@@ -8,6 +8,8 @@ handles any errors that may occur during initialization, such as broker unavaila
 network issues, or misconfigurations. The module leverages Python's logging
 module to capture and log the relevant information and errors.
 """
+from __future__ import annotations
+
 import logging
 import threading
 from types import TracebackType

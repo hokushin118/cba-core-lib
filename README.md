@@ -338,6 +338,8 @@ This command will create the distribution files in the dist/ directory.
 
 ## Installation
 
+### General
+
 To install the `cba-core-lib` package, you have a few options depending on your
 needs and where the package is located.
 
@@ -373,3 +375,33 @@ Replace `<version>` with the actual version number of the package.
     ```bash
     pip show cba-core-lib
     ```
+
+### Extras
+
+This library includes components for interacting with external storage services
+like [MinIO](https://min.io/). To keep the core library lightweight, the
+specific client
+libraries (minio, tenacity for retries) required for these features are
+optional.
+
+* If you intend to use the storage service features (e.g., MinioService), you
+  need to install the library with the [storage] extra:
+
+    ```bash
+    pip install cba_core_lib[storage]
+    ```
+
+This command will install cba_core_lib along with all the dependencies listed
+under the storage section in pyproject.toml, currently including:
+
+- minio: The official Python client for [MinIO](https://min.io/) and
+  S3-compatible services.
+- tenacity: A library used to add robust retry logic to operations like file
+  uploads.
+
+If you install the library without the [storage] extra (pip install
+cba_core_lib), you can still use all other core components of the library.
+However, if you attempt to instantiate or use classes that depend on the
+missing packages (like MinioService), you will encounter an ImportError at
+runtime with a message indicating which dependencies are missing and how to
+install them.

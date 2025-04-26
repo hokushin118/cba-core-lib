@@ -3,6 +3,8 @@ Utility functions.
 
 This module contains common utility functions.
 """
+from __future__ import annotations
+
 import logging
 import uuid
 

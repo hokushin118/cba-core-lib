@@ -3,6 +3,8 @@ Package: kafka.
 
 CBA Core Library - Kafka Utilities.
 """
+from __future__ import annotations
+
 from cba_core_lib.kafka.consumer import KafkaConsumerManager
 from cba_core_lib.kafka.producer import KafkaProducerManager
 from cba_core_lib.kafka.utils import (

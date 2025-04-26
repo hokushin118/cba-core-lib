@@ -1,3 +1,12 @@
+"""
+This module provides a Flask-specific adapter for integrating the cba-core-lib's
+AuditLogger into Flask applications. It simplifies the process of auditing
+HTTP requests by offering utilities to extract request and response data
+from Flask's objects and a decorator factory to automate the auditing of
+Flask route execution.
+"""
+from __future__ import annotations
+
 import json
 import logging
 import time

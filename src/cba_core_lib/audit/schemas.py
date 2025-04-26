@@ -3,6 +3,8 @@ Schemas for Audit logging.
 
 All schemas are stored in this module.
 """
+from __future__ import annotations
+
 import logging
 from datetime import datetime
 from typing import Optional, Dict, Any

@@ -4,6 +4,8 @@ Log Handlers.
 This module contains utility functions to set up logging
 consistently for containerized environments.
 """
+from __future__ import annotations
+
 import logging
 import sys
 
