@@ -3,6 +3,8 @@ Kafka utility functions.
 
 This module contains Kafka utility functions.
 """
+from __future__ import annotations
+
 import json
 import logging
 from json import JSONDecodeError

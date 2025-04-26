@@ -5,6 +5,8 @@ This module defines configuration classes and enums for Kafka consumers
 and producers. It provides a structured way to manage Kafka settings,
 ensuring consistency and readability across the application.
 """
+from __future__ import annotations
+
 import logging
 from dataclasses import dataclass
 from enum import Enum

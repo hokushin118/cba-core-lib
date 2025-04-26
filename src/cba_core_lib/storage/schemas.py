@@ -56,6 +56,8 @@ Example Usage (FastAPI):
         }
     ```
 """
+from __future__ import annotations
+
 from typing import Optional, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, model_validator

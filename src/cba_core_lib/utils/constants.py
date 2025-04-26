@@ -3,6 +3,8 @@ Constants.
 
 This module contains constants used throughout the microservice.
 """
+from __future__ import annotations
+
 # Cookie header
 COOKIES_NAME: str = 'Cookie'
 # Authorization header

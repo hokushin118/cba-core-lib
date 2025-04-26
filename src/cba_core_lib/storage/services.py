@@ -3,22 +3,17 @@ File Storage Services.
 
 This module provides the file storage services.
 """
+from __future__ import annotations
+
 import logging
 import os
 import uuid
 from abc import ABC, abstractmethod
 from io import BytesIO
-from typing import Tuple, List, Dict, Any, Optional
+from typing import Tuple, List, Dict, Any, Optional, Callable
 from urllib.parse import quote
 
 from minio import Minio
-from minio.error import S3Error
-from tenacity import (
-    retry,
-    stop_after_attempt,
-    wait_exponential,
-    retry_if_exception_type
-)
 
 from cba_core_lib.storage.configs import MinioConfig
 from cba_core_lib.storage.errors import FileStorageError
@@ -176,6 +171,56 @@ class FileStorageService(ABC):
 ######################################################################
 #  MINIO SERVICE
 ######################################################################
+
+# --- Lazy import tenacity for decorator ---
+_TENACITY_AVAILABLE = False
+try:
+    # pylint: disable=W0611
+    from tenacity import (
+        retry,
+        stop_after_attempt,
+        wait_exponential,
+        retry_if_exception_type,
+        RetryError as TenacityRetryError
+    )
+
+    _TENACITY_AVAILABLE = True
+except ImportError:
+    logger.warning(
+        "Optional dependency 'tenacity' not found. Install with "
+        "'pip install cba_core_lib[storage]' to enable retry "
+        "logic for MinioService."
+    )
+    stop_after_attempt = Any
+    wait_exponential = Any
+    retry_if_exception_type = Any
+
+
+    def retry(*_args: Any, **_kwargs: Any):  # noqa: E303
+        """A dummy decorator that simply returns the decorated function.
+
+        This decorator is a placeholder and does not provide any retry
+        functionality. It essentially does nothing and allows the decorated
+        function to execute as if it were not decorated at all.
+
+        Args:
+            *_args:  Any positional arguments. These are ignored.
+            **_kwargs: Any keyword arguments. These are ignored.
+
+        Returns:
+            Callable: The original function that was decorated.
+        """
+
+        def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+            return func
+
+        return decorator
+
+
+    class TenacityRetryError(Exception):  # noqa: E303
+        """Dummy exception."""
+
+
 class MinioService(FileStorageService):
     """A service class for interacting with a MinIO server.
 
@@ -215,6 +260,18 @@ class MinioService(FileStorageService):
                 invalid configuration, connection problems, or other errors
                 during the setup process.
         """
+        try:
+            # Check if Minio class itself can be imported
+            from minio import Minio  # pylint: disable=W0404, C0415
+            from minio.error import S3Error  # pylint: disable=C0415
+            self._S3Error = S3Error  # Store exception type for later use
+        except ImportError as err:
+            raise ImportError(
+                "The 'minio' package is required for MinioService but "
+                "is not installed. Install with: pip install "
+                "cba_core_lib[storage]"
+            ) from err
+
         if not isinstance(
                 config,
                 MinioConfig
@@ -222,8 +279,10 @@ class MinioService(FileStorageService):
             raise ValueError(
                 'Invalid configuration type provided for MinioService.'
             )
+
         self.config = config
         self.client = None
+
         try:
             endpoint = str(config.endpoint)
             endpoint = (
@@ -245,7 +304,7 @@ class MinioService(FileStorageService):
             )
 
         except (
-                S3Error,
+                self._S3Error,
                 Exception
         ) as err:
             error_message = f"Failed to initialize MinIO client: {err}"
@@ -267,6 +326,14 @@ class MinioService(FileStorageService):
                 indicating that the MinIO client failed to initialize.
         """
         if self.client is None:
+            try:
+                import minio  # pylint: disable=C0415, W0611 # noqa: F401
+            except ImportError as err:
+                raise FileStorageError(
+                    'MinIO service cannot operate because the "minio" package '
+                    'is not installed. Install with: '
+                    'pip install cba_core_lib[storage]'
+                ) from err
             error_message = 'MinIO service client was not initialized ' \
                             'successfully.'
             logger.error(error_message)
@@ -290,7 +357,7 @@ class MinioService(FileStorageService):
             logger.info('MinIO connection successful.')
             return True
 
-        except S3Error as err:
+        except self._S3Error as err:
             logger.error(
                 "MinIO connection check failed: %s",
                 err
@@ -335,7 +402,7 @@ class MinioService(FileStorageService):
                     bucket_name
                 )
 
-        except S3Error as err:
+        except self._S3Error as err:
             error_message = f"Could not ensure MinIO bucket '{bucket_name}' " \
                             f"exists: {str(err)}"
             logger.error(error_message, exc_info=True)
@@ -450,7 +517,7 @@ class MinioService(FileStorageService):
                 bucket_name
             )
             return True
-        except S3Error as err:
+        except self._S3Error as err:
             if err.code == 'NoSuchKey':
                 return False
             error_message = f"Failed to check if file exists: {err}"
@@ -484,7 +551,10 @@ class MinioService(FileStorageService):
                 len(bucket_names)
             )
             return bucket_names
-        except Exception as err:  # pylint: disable=W0703
+        except (
+                self._S3Error,
+                Exception
+        ) as err:  # pylint: disable=W0703
             error_message = 'Failed to list buckets'
             logger.error(error_message, exc_info=True)
             raise FileStorageError(error_message) from err
@@ -553,7 +623,10 @@ class MinioService(FileStorageService):
                 prefix
             )
             return file_list
-        except Exception as err:  # pylint: disable=W0703
+        except (
+                self._S3Error,
+                Exception
+        ) as err:  # pylint: disable=W0703
             error_message = f"Failed to list files in bucket '{bucket_name}'"
             logger.error(error_message, exc_info=True)
             raise FileStorageError(error_message) from err
@@ -605,9 +678,17 @@ class MinioService(FileStorageService):
                 a general `Exception` from the MinIO client.
         """
         try:
+            # Create a new BytesIO stream for each attempt
             file_data_stream = BytesIO(content_bytes)
             # Get content type from headers if not provided
             effective_content_type = content_type or 'application/octet-stream'
+
+            logger.debug(
+                "Attempting MinIO put_object: '%s' as '%s' to '%s'",
+                filename_for_log,
+                object_name,
+                bucket_name
+            )
 
             result = self.client.put_object(
                 bucket_name=bucket_name,
@@ -629,12 +710,13 @@ class MinioService(FileStorageService):
 
             return object_name, etag, file_size
 
-        except S3Error as err:
+        except self._S3Error as err:
             error_message = (
                 f"MinIO S3 upload failed for '{filename_for_log}'"
                 f" (object: {object_name}): {err}"
             )
             logger.error(error_message, exc_info=True)
+            # Wrap in FileStorageError for retry condition
             raise FileStorageError(error_message) from err
         except Exception as err:  # pylint: disable=W0703
             error_message = (
@@ -727,9 +809,13 @@ class MinioService(FileStorageService):
                 filename_for_log=log_filename
             )
 
-        except ValueError as value_err:
-            raise value_err
+        except ValueError as validation_err:
+            raise validation_err
         except FileStorageError as fse:
+            logger.error(
+                "Upload failed permanently for '%s' after retries.",
+                log_filename
+            )
             raise fse
         except Exception as err:  # pylint: disable=W0703
             error_message = f"Unexpected error preparing upload for '': {err}"

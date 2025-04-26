@@ -11,7 +11,8 @@ from kafka import KafkaProducer
 from pytest import fixture
 from testcontainers.minio import MinioContainer
 
-from cba_core_lib import MinioConfig, MinioService
+from cba_core_lib import MinioConfig, MinioService, FileUploadData, \
+    SimpleFileData
 from cba_core_lib.audit.configs import AuditConfig
 from cba_core_lib.audit.core import AuditLogger
 from cba_core_lib.kafka.configs import (
@@ -22,7 +23,6 @@ from cba_core_lib.kafka.configs import (
 
 )
 from cba_core_lib.kafka.producer import KafkaProducerManager
-from cba_core_lib.storage.schemas import SimpleFileData, FileUploadData
 
 TEST_ENDPOINT = 'http://localhost:9000'
 TEST_ACCESS_KEY = 'testaccesskey'

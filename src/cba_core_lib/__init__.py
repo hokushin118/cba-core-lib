@@ -3,6 +3,8 @@ Package: cba_core_lib.
 
 Reusable utilities for Python microservices.
 """
+from __future__ import annotations
+
 from cba_core_lib.audit.adapters import FlaskAuditAdapter
 from cba_core_lib.audit.configs import AuditConfig
 from cba_core_lib.audit.core import AuditLogger
@@ -82,7 +84,7 @@ from cba_core_lib.utils.status import (
     HTTP_511_NETWORK_AUTHENTICATION_REQUIRED,
 )
 
-__version__ = '1.0.20'
+__version__ = '1.0.21'
 
 __all__ = [
     # HTTP Status Codes

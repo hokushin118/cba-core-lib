@@ -5,6 +5,8 @@ This module contains common enumerations used throughout the microservices.
 These enums provide centralized definitions for consistent and type-safe
 representation of predefined values.
 """
+from __future__ import annotations
+
 from enum import Enum
 
 

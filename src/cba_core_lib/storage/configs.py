@@ -5,6 +5,8 @@ This module defines configuration classes for File Storage. It provides
 a structured way to manage File Storage settings, ensuring consistency and
 readability across the application.
 """
+from __future__ import annotations
+
 import logging
 
 from pydantic import AnyHttpUrl, SecretStr

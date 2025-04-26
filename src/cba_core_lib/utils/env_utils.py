@@ -3,6 +3,8 @@ Environment utility functions.
 
 This module contains environment utility functions.
 """
+from __future__ import annotations
+
 import logging
 import os
 from enum import Enum

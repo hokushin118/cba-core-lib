@@ -3,6 +3,8 @@ Audit logger.
 
 This module defines audit logger.
 """
+from __future__ import annotations
+
 import logging
 from typing import Optional, Any
 
@@ -79,15 +81,15 @@ class AuditLogger:
             except Exception:  # pylint: disable=W0703
                 key_repr = str(kafka_key)
 
-        logger.debug(
-            "Audit message sent successfully "
-            "correlation_id: %s. Topic: %s, Key: %s, Partition: %s, Offset: %s",
-            event.correlation_id,
-            record_metadata.topic,
-            key_repr,
-            record_metadata.partition,
-            record_metadata.offset,
-        )
+            logger.debug(
+                "Audit message sent successfully "
+                "correlation_id: %s. Topic: %s, Key: %s, Partition: %s, Offset: %s",
+                event.correlation_id,
+                record_metadata.topic,
+                key_repr,
+                record_metadata.partition,
+                record_metadata.offset,
+            )
 
     def _on_send_error(
             self,
@@ -114,17 +116,17 @@ class AuditLogger:
             except Exception:  # pylint: disable=W0703
                 key_repr = str(kafka_key)
 
-        logger.error(
-            "Error sending audit message asynchronously to Kafka, "
-            "correlation_id: %s, key: %s: %s",
-            event.correlation_id,
-            key_repr,
-            kafka_exception,
-            exc_info=isinstance(
+            logger.error(
+                "Error sending audit message asynchronously to Kafka, "
+                "correlation_id: %s, key: %s: %s",
+                event.correlation_id,
+                key_repr,
                 kafka_exception,
-                KafkaError
+                exc_info=isinstance(
+                    kafka_exception,
+                    KafkaError
+                )
             )
-        )
 
     def log_event(
             self,

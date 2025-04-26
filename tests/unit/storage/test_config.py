@@ -54,7 +54,7 @@ class TestMinioConfig:
         monkeypatch.setenv('MINIO_ENDPOINT', TEST_ENDPOINT)
         monkeypatch.setenv('MINIO_ACCESS_KEY', TEST_ACCESS_KEY)
         monkeypatch.setenv('MINIO_SECRET_KEY', TEST_SECRET_KEY)
-        monkeypatch.setenv('MINIO_USE_SSL', TEST_USE_SSL)
+        monkeypatch.setenv('MINIO_USE_SSL', str(TEST_USE_SSL).lower())
 
         minio_config = MinioConfig()
 
@@ -87,7 +87,7 @@ class TestMinioConfig:
         monkeypatch.setenv('MINIO_ENDPOINT', TEST_ENDPOINT)
         monkeypatch.setenv('MINIO_ACCESS_KEY', TEST_ACCESS_KEY)
         monkeypatch.setenv('MINIO_SECRET_KEY', TEST_SECRET_KEY)
-        monkeypatch.setenv('MINIO_USE_SSL', TEST_USE_SSL)
+        monkeypatch.setenv('MINIO_USE_SSL', str(TEST_USE_SSL).lower())
 
         assert hasattr(minio_config, 'endpoint')
         assert hasattr(minio_config, 'access_key')

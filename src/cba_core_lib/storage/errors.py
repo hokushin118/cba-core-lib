@@ -3,6 +3,8 @@ Custom errors for File Storage.
 
 This module defines custom exception classes for file storage operations.
 """
+from __future__ import annotations
+
 from typing import Optional, Dict, Any
 
 

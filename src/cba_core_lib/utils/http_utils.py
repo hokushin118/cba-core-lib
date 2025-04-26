@@ -3,6 +3,8 @@ Http utility functions.
 
 This module contains utility functions to REST API.
 """
+from __future__ import annotations
+
 import hashlib
 import logging
 from typing import Optional

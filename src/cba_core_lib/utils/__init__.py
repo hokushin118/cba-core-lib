@@ -3,6 +3,8 @@ Package: utils.
 
 Package for common utility functions.
 """
+from __future__ import annotations
+
 from cba_core_lib.utils import status
 from cba_core_lib.utils.common import generate_correlation_id
 from cba_core_lib.utils.constants import (
