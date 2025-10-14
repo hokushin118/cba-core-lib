@@ -4,10 +4,14 @@ Enums Unit Test Suite.
 Test cases can be run with the following:
   pytest -v --cov=cba_core_lib --cov-report=term-missing --cov-branch
 """
-
 import pytest
 
-from cba_core_lib.utils.enums import UserRole, Status, HTTPSchema
+from cba_core_lib.utils.enums import (
+    UserRole,
+    Status,
+    HTTPSchema,
+    StorageProviderType, MetadataProviderType
+)
 
 
 ######################################################################
@@ -144,3 +148,88 @@ class TestHTTPSchema:
         an invalid string."""
         with pytest.raises(ValueError):
             HTTPSchema('INVALID_SCHEMA')
+
+
+class TestStorageProviderType:
+    """The StorageProviderType Enum Tests."""
+
+    def test_storageprovidertype_values(self):
+        """It should verify the string values of the
+        StorageProviderType enum members."""
+        assert StorageProviderType.MINIO.value == 'minio'
+        assert StorageProviderType.AWS.value == 'aws'
+        assert StorageProviderType.AZURE.value == 'azure'
+
+    def test_storageprovidertype_str_method(self):
+        """It should verify that converting StorageProviderType
+        members to strings returns their correct values."""
+        assert str(StorageProviderType.MINIO) == 'minio'
+        assert str(StorageProviderType.AWS) == 'aws'
+        assert str(StorageProviderType.AZURE) == 'azure'
+
+    def test_storageprovidertype_enum_creation_from_value(self):
+        """It should create enum members from their string values."""
+        assert StorageProviderType('minio') == StorageProviderType.MINIO
+        assert StorageProviderType('aws') == StorageProviderType.AWS
+        assert StorageProviderType('azure') == StorageProviderType.AZURE
+
+    def test_storageprovidertype_enum_comparison(self):
+        """It should allow comparison of enum members."""
+        assert StorageProviderType.MINIO == StorageProviderType.MINIO
+        assert StorageProviderType.MINIO != StorageProviderType.AWS
+        assert StorageProviderType.AWS == StorageProviderType.AWS
+        assert StorageProviderType.AWS != StorageProviderType.AZURE
+        assert StorageProviderType.AZURE == StorageProviderType.AZURE
+        assert StorageProviderType.AZURE != StorageProviderType.MINIO
+
+    def test_storageprovidertype_name_attribute(self):
+        """It should return the correct name attribute of enum members."""
+        assert StorageProviderType.MINIO.name == 'MINIO'
+        assert StorageProviderType.AWS.name == 'AWS'
+        assert StorageProviderType.AZURE.name == 'AZURE'
+
+    def test_storageprovidertype_invalid_value(self):
+        """It should raise ValueError when creating an enum member with
+        an invalid string."""
+        with pytest.raises(ValueError):
+            StorageProviderType('INVALID_SCHEMA')
+
+
+class TestMetadataProviderType:
+    """The MetadataProviderType Enum Tests."""
+
+    def test_metadataprovidertype_values(self):
+        """It should verify the string values of the MetadataProviderType
+        enum members."""
+        assert MetadataProviderType.MONGO.value == 'mongo'
+        assert MetadataProviderType.POSTGRES.value == 'postgres'
+
+    def test_metadataprovidertype_str_method(self):
+        """It should verify that converting MetadataProviderType members to
+        strings returns their correct values."""
+        assert str(MetadataProviderType.MONGO) == 'mongo'
+        assert str(MetadataProviderType.POSTGRES) == 'postgres'
+
+    def test_metadataprovidertype_enum_creation_from_value(self):
+        """It should create enum members from their string values."""
+        assert MetadataProviderType('mongo') == MetadataProviderType.MONGO
+        assert MetadataProviderType(
+            'postgres'
+        ) == MetadataProviderType.POSTGRES
+
+    def test_metadataprovidertype_enum_comparison(self):
+        """It should allow comparison of enum members."""
+        assert MetadataProviderType.MONGO == MetadataProviderType.MONGO
+        assert MetadataProviderType.MONGO != MetadataProviderType.POSTGRES
+        assert MetadataProviderType.POSTGRES == MetadataProviderType.POSTGRES
+
+    def test_metadataprovidertype_name_attribute(self):
+        """It should return the correct name attribute of enum members."""
+        assert MetadataProviderType.MONGO.name == 'MONGO'
+        assert MetadataProviderType.POSTGRES.name == 'POSTGRES'
+
+    def test_metadataprovidertype_invalid_value(self):
+        """It should raise ValueError when creating an enum member with
+        an invalid string."""
+        with pytest.raises(ValueError):
+            MetadataProviderType('INVALID_SCHEMA')

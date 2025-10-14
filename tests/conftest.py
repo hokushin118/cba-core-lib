@@ -3,6 +3,8 @@ Pytest configuration and fixtures.
 """
 import logging
 import os
+import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Generator
 from unittest.mock import MagicMock
@@ -24,22 +26,32 @@ from cba_core_lib.kafka.configs import (
 )
 from cba_core_lib.kafka.producer import KafkaProducerManager
 
-TEST_ENDPOINT = 'http://localhost:9000'
-TEST_ACCESS_KEY = 'testaccesskey'
-TEST_SECRET_KEY = 'testsecretkey'
-TEST_USE_SSL = False
-TEST_BUCKET_NAME = 'test-bucket'
-TEST_FILES_FOLDER = 'test_files'
-TEST_FILE_NAME = 'test_file.txt'
-TEST_CONTENT_TYPE = 'text/plain'
-TEST_FILE_CONTENT = b"This is a test file."
-TEST_ETAG = 'testetag'
-TEST_FILE_SIZE = len(TEST_FILE_CONTENT)
+TEST_ENDPOINT: str = 'http://localhost:9000'
+TEST_ACCESS_KEY: str = 'testaccesskey'
+TEST_SECRET_KEY: str = 'testsecretkey'
+TEST_USE_SSL: bool = False
+TEST_BUCKET_NAME: str = 'test-bucket'
+TEST_FILES_FOLDER: str = 'test_files'
+TEST_FILE_NAME: str = 'test_file.txt'
+TEST_OBJECT_NAME: str = 'test-object.txt'
+TEST_CONTENT_TYPE: str = 'text/plain'
+TEST_FILE_CONTENT: bytes = b"This is a test file."
+TEST_ETAG: str = 'testetag'
+TEST_USER_ID: str = '13b914bb-443f-4319-97a9-7a7bb5fdb9f3'
+TEST_FILE_SIZE: int = len(TEST_FILE_CONTENT)
 
-TEST_KAFKA_BROKERS = 'kafka1:9092,kafka2:9092'
-TEST_TOPIC = 'audit-topic'
-TEST_SERVICE_NAME = 'test-service'
-TEST_USER_ID = '4243d65c-4feb-47a5-8571-89e3f2615bdf'
+TEST_MONGO_URI: str = 'mongodb://localhost:27017'
+TEST_MONGO_DB_NAME: str = 'file_metadata'
+TEST_MONGO_COLLECTION_NAME: str = 'uploads'
+
+TEST_KAFKA_BROKERS: str = 'kafka1:9092,kafka2:9092'
+TEST_TOPIC: str = 'audit-topic'
+TEST_SERVICE_NAME: str = 'test-service'
+TEST_USER_ID: str = '4243d65c-4feb-47a5-8571-89e3f2615bdf'
+
+TEST_UUID: uuid.UUID = uuid.uuid4()
+TEST_CREATED_AT: datetime = datetime.now(timezone.utc)
+TEST_UPDATED_AT: datetime = datetime.now(timezone.utc)
 
 
 ######################################################################

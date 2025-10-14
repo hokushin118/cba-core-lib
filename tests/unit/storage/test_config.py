@@ -63,20 +63,6 @@ class TestMinioConfig:
         assert minio_config.secret_key.get_secret_value() == TEST_SECRET_KEY
         assert minio_config.use_ssl is TEST_USE_SSL
 
-    def test_minio_config_immutability(
-            self,
-            minio_config
-    ):
-        """It should ensure MinioConfig instance is immutable."""
-        with pytest.raises(ValidationError):
-            minio_config.endpoint = 'new-endpoint'
-        with pytest.raises(ValidationError):
-            minio_config.access_key = 'new-access-key'
-        with pytest.raises(ValidationError):
-            minio_config.secret_key = 'new-secret-key'
-        with pytest.raises(ValidationError):
-            minio_config.use_ssl = True
-
     def test_minio_config_init_sets_attributes(
             self,
             monkeypatch,
@@ -164,3 +150,22 @@ class TestMinioConfig:
                 use_ssl=false_val,
             )
             assert config.use_ssl is False, f"Failed for MINIO_SECURE='{false_val}'"
+
+    @pytest.mark.parametrize(
+        'field_name, new_value',
+        [
+            ('endpoint', 'new-endpoint'),
+            ('access_key', 'new-access-key'),
+            ('secret_key', 'new-secret-key'),
+            ('use_ssl', True),
+        ],
+    )
+    def test_minio_config_immutability(
+            self,
+            minio_config,
+            field_name,
+            new_value
+    ):
+        """It should ensure schema instance is immutable."""
+        with pytest.raises(ValidationError):
+            setattr(minio_config, field_name, new_value)

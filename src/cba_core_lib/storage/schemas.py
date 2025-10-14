@@ -60,7 +60,7 @@ from __future__ import annotations
 
 from typing import Optional, Protocol, runtime_checkable
 
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 ######################################################################
@@ -113,16 +113,32 @@ class SimpleFileData(BaseModel):
         content_type (Optional[str], optional): The MIME type of the file.
         Defaults to None.
     """
-    content_bytes: bytes
-    size: int
-    filename: Optional[str] = None
-    content_type: Optional[str] = None
+    content_bytes: bytes = Field(
+        ...,
+        description='The raw byte content of the uploaded file.',
+        examples=[b'%PNG-1.5']
+    )
+    size: int = Field(
+        ...,
+        ge=0,
+        description='The size of the file content in bytes.',
+        examples=[5242880]  # 5 MB example
+    )
+    filename: Optional[str] = Field(
+        None,
+        description='The original filename provided during upload.',
+        examples=['vacation_photo.png']
+    )
+    content_type: Optional[str] = Field(
+        None,
+        description='The MIME type of the file.',
+        examples=['text/plain']
+    )
 
     model_config = ConfigDict(
-        #  Extra fields in the input data will be
-        #  silently ignored
+        # Extra fields in the input data will be silently ignored
         extra='ignore',
-        # pylint: disable=too-few-public-methods
+        # Allow model creation from attributes
         from_attributes=True,
         # Allows the model to be populated by aliases
         populate_by_name=True,

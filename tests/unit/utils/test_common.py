@@ -8,7 +8,10 @@ import uuid
 
 import pytest
 
-from cba_core_lib.utils.common import generate_correlation_id
+from cba_core_lib.utils.common import (
+    generate_correlation_id,
+    check_not_whitespace_only
+)
 
 
 ######################################################################
@@ -41,3 +44,71 @@ class TestGenerateCorrelationId:
             correlation_id,
             str
         ), 'Generated correlation ID should be a string'
+
+
+class TestCheckNotWhitespaceOnly:
+    """The check_not_whitespace_only Function Tests."""
+
+    def test_check_not_whitespace_only_valid_string(self):
+        """It should return the original string when given a valid string
+        that contains non-whitespace characters."""
+        test_string = 'Hello, World!'
+        result = check_not_whitespace_only(test_string)
+        assert result == test_string, 'Should return the original string'
+
+    def test_check_not_whitespace_only_string_with_leading_and_trailing_spaces(
+            self
+    ):
+        """It should return the original string when given a string that has
+        leading and trailing spaces."""
+        test_string = '   Trimmed String   '
+        result = check_not_whitespace_only(test_string)
+        assert result == test_string, \
+            'Should return the original string with spaces'
+
+    def test_check_not_whitespace_only_string_with_internal_spaces(self):
+        """It should return the original string when given a string that has
+        spaces within the string."""
+        test_string = 'Internal Spaces String'
+        result = check_not_whitespace_only(test_string)
+        assert result == test_string, \
+            'Should return the original string with spaces'
+
+    def test_check_not_whitespace_only_string_with_only_spaces(self):
+        """It should raise a ValueError when the string contains
+        only spaces."""
+        test_string = "   "
+        with pytest.raises(ValueError) as excinfo:
+            check_not_whitespace_only(test_string)
+        assert 'Field cannot consist only of whitespace.' in str(
+            excinfo.value
+        ), 'Should raise ValueError with correct message'
+
+    def test_check_not_whitespace_only_string_with_tabs(self):
+        """It should raise a ValueError when the string contains only tabs."""
+        test_string = "\t\t\t"
+        with pytest.raises(ValueError) as excinfo:
+            check_not_whitespace_only(test_string)
+        assert 'Field cannot consist only of whitespace.' in str(
+            excinfo.value
+        ), 'Should raise ValueError with correct message'
+
+    def test_check_not_whitespace_only_string_with_newlines(self):
+        """It should raise a ValueError when the string contains only
+        newlines."""
+        test_string = '\n\n\n'
+        with pytest.raises(ValueError) as excinfo:
+            check_not_whitespace_only(test_string)
+        assert 'Field cannot consist only of whitespace.' in str(
+            excinfo.value
+        ), 'Should raise ValueError with correct message'
+
+    def test_check_not_whitespace_only_string_with_mixed_whitespace(self):
+        """It should raise a ValueError when the string contains mixed
+        whitespace characters."""
+        test_string = '  \t\n  '
+        with pytest.raises(ValueError) as excinfo:
+            check_not_whitespace_only(test_string)
+        assert 'Field cannot consist only of whitespace.' in str(
+            excinfo.value
+        ), 'Should raise ValueError with correct message'

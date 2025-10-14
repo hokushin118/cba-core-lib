@@ -245,7 +245,7 @@ class TestMinioServiceIntegration:
 
         # Create test files
         integration_tests_dir_path = Path(os.path.dirname(__file__))
-        tests_dir = str(integration_tests_dir_path.parent)
+        tests_dir = str(integration_tests_dir_path.parent.parent)
         test_file_path1 = os.path.join(
             tests_dir,
             TEST_FILES_FOLDER,

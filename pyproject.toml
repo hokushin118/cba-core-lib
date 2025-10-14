@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cba_core_lib"
-version = "1.0.21"
+version = "1.0.22"
 description = "Core library for CBA microservices"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -42,6 +42,7 @@ Repository = "https://github.com/hokushin118/cba-core-lib"
 storage = [
     "minio==7.2.15",
     "tenacity==9.1.2",
+    "motor==4.12.1",
 ]
 test = [
     "pytest>=7.0",

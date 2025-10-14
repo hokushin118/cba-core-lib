@@ -13,3 +13,4 @@ AUTHORIZATION_HEADER: str = 'Authorization'
 # most commonly JSON Web Tokens (JWTs)
 BEARER_HEADER: str = 'Bearer'
 ANONYMOUS_USER_NAME: str = 'Anonymous'
+MIN_LENGTH: int = 3
